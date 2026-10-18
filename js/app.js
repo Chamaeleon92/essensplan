@@ -8,6 +8,7 @@ import * as rezeptBearbeiten from './ansichten/rezept-bearbeiten.js';
 import * as kategorien from './ansichten/kategorien.js';
 import { beispieleLaden } from './beispieldaten.js';
 import { symbol } from './symbole.js';
+import { tonFreischalten } from './ton.js';
 
 const inhalt = document.getElementById('inhalt');
 
@@ -16,6 +17,10 @@ const kopfzeile = document.querySelector('.kopfzeile');
 new ResizeObserver(() => {
   document.documentElement.style.setProperty('--kopf-hoehe', `${kopfzeile.offsetHeight}px`);
 }).observe(kopfzeile);
+
+// Töne dürfen erst nach einer Berührung abgespielt werden – bei jedem Tippen freischalten
+window.addEventListener('click', tonFreischalten, { capture: true });
+window.addEventListener('touchend', tonFreischalten, { capture: true });
 
 // Symbole in der unteren Navigation einsetzen
 for (const platz of document.querySelectorAll('.nav-symbol')) {

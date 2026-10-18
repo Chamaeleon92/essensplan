@@ -4,6 +4,7 @@ import { alleKategorien, speichern, kategorieLoeschen, neueId, allesZuruecksetze
 import { sicher, gleicherName } from '../hilfen.js';
 import { kopfSetzen } from '../kopf.js';
 import { symbol } from '../symbole.js';
+import { yummi } from '../ton.js';
 
 let container;
 let kategorien = [];
@@ -40,6 +41,7 @@ function zeichnen() {
       </p>
       <div class="ausprobieren-knoepfe">
         <a class="knopf knopf-haupt" href="#/beispieldaten">Beispielrezepte laden</a>
+        <button type="button" class="knopf" data-ton-testen>🎉 Yummi-Ton testen</button>
         <button type="button" class="knopf knopf-gefahr" data-zuruecksetzen>
           ${symbol.muell({ groesse: 20 })} Alles zurücksetzen
         </button>
@@ -50,6 +52,7 @@ function zeichnen() {
   container.querySelector('#neu-formular').addEventListener('submit', hinzufuegen);
   container.querySelector('.liste').addEventListener('click', listeGeklickt);
   container.querySelector('[data-zuruecksetzen]').addEventListener('click', zuruecksetzen);
+  container.querySelector('[data-ton-testen]').addEventListener('click', yummi);
 
   const umbenennenFormular = container.querySelector('#umbenennen-formular');
   if (umbenennenFormular) {

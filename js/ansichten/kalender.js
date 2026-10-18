@@ -12,6 +12,7 @@ import { kopfSetzen } from '../kopf.js';
 import { symbol } from '../symbole.js';
 import { blattHtml, blattAktivieren, blattOeffnen, blattSchliessen } from '../blatt.js';
 import { konfetti } from '../konfetti.js';
+import { yummi } from '../ton.js';
 import { rezeptlisteAnzeigen, neuerFilter } from '../rezeptliste.js';
 import { ziehenAktivieren } from '../ziehen.js';
 import { einkaufslisteBerechnen, einkaufslisteText } from '../einkaufsliste.js';
@@ -402,6 +403,7 @@ function feiernWennVoll(tage, proTag) {
   const anzahl = tage.filter((tag) => proTag.has(schluessel(tag))).length;
   if (fortschrittVorher?.woche === woche && fortschrittVorher.anzahl < 7 && anzahl === 7) {
     konfetti();
+    yummi();
     navigator.vibrate?.([30, 60, 30]);
   }
   fortschrittVorher = { woche, anzahl };

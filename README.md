@@ -27,6 +27,7 @@ Ein Doppelklick auf `index.html` reicht nicht: Die App ist in mehrere JavaScript
 | `js/symbole.js` | Alle Symbole als SVG |
 | `js/blatt.js` | Bottom Sheets (fahren von unten herein, wegwischbar) |
 | `js/konfetti.js` | Konfetti, wenn die Woche voll geplant ist |
+| `js/ton.js` | „Yummi“-Ton dazu (im Browser erzeugt, keine Tondatei) |
 | `js/kopf.js` | Kopfzeile mit Titel, Zurück-Knopf und Aktionen |
 | `js/kachel.js` | Rezept-Kachel (Bild, Titel, Dauer, Kategorien, Favorit) |
 | `js/rezeptliste.js` | Rezeptliste mit Suche und Filter (auch für das Kalender-Overlay) |
