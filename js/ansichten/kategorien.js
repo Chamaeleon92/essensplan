@@ -3,6 +3,7 @@
 import { alleKategorien, speichern, kategorieLoeschen, neueId } from '../db.js';
 import { sicher, gleicherName } from '../hilfen.js';
 import { kopfSetzen } from '../kopf.js';
+import { symbol } from '../symbole.js';
 
 let container;
 let kategorien = [];
@@ -48,12 +49,12 @@ function zeile(kategorie) {
   if (kategorie.id === bearbeiteteId) {
     return `
       <li>
-        <form id="umbenennen-formular" class="formular-zeile" style="flex:1;margin:0">
+        <form id="umbenennen-formular" class="formular-zeile umbenennen">
           <input class="eingabe" value="${sicher(kategorie.name)}" maxlength="40"
                  aria-label="Neuer Name" autocomplete="off">
-          <button class="knopf-symbol" type="submit" title="Speichern" aria-label="Speichern">✔️</button>
+          <button class="knopf-symbol" type="submit" title="Speichern" aria-label="Speichern">${symbol.haken({ groesse: 20 })}</button>
           <button class="knopf-symbol" type="button" data-aktion="abbrechen"
-                  title="Abbrechen" aria-label="Abbrechen">✖️</button>
+                  title="Abbrechen" aria-label="Abbrechen">${symbol.schliessen({ groesse: 20 })}</button>
         </form>
       </li>
     `;
@@ -62,9 +63,9 @@ function zeile(kategorie) {
     <li>
       <span class="name">${sicher(kategorie.name)}</span>
       <button class="knopf-symbol" data-aktion="bearbeiten" data-id="${kategorie.id}"
-              title="Umbenennen" aria-label="${sicher(kategorie.name)} umbenennen">✏️</button>
+              title="Umbenennen" aria-label="${sicher(kategorie.name)} umbenennen">${symbol.stift({ groesse: 20 })}</button>
       <button class="knopf-symbol" data-aktion="loeschen" data-id="${kategorie.id}"
-              title="Löschen" aria-label="${sicher(kategorie.name)} löschen">🗑️</button>
+              title="Löschen" aria-label="${sicher(kategorie.name)} löschen">${symbol.muell({ groesse: 20 })}</button>
     </li>
   `;
 }

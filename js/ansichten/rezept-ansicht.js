@@ -3,6 +3,7 @@
 import { holen, alleKategorien } from '../db.js';
 import { sicher, mengeText, dauerText, htmlBereinigen } from '../hilfen.js';
 import { kopfSetzen } from '../kopf.js';
+import { symbol } from '../symbole.js';
 
 export async function anzeigen(container, id) {
   const [rezept, kategorien] = await Promise.all([holen('rezepte', id), alleKategorien()]);
@@ -22,7 +23,8 @@ export async function anzeigen(container, id) {
     titel: 'Rezept',
     zurueck: '#/rezepte',
     aktionen: [{
-      symbol: '✏️',
+      symbol: symbol.stift({ groesse: 20 }),
+      hervorgehoben: true,
       label: 'Bearbeiten',
       beiKlick: () => { location.hash = `#/rezept/${id}/bearbeiten`; },
     }],
@@ -38,12 +40,12 @@ export async function anzeigen(container, id) {
 
       <h2 class="rezept-titel">
         ${sicher(rezept.titel)}
-        ${rezept.favorit ? '<span title="Favorit" aria-label="Favorit">⭐</span>' : ''}
+        ${rezept.favorit ? `<span class="titel-stern" title="Favorit" role="img" aria-label="Favorit">${symbol.stern({ groesse: 26, fuellung: 'currentColor' })}</span>` : ''}
       </h2>
 
       <div class="rezept-info">
-        ${rezept.dauer ? `<span>⏱ ${dauerText(rezept.dauer)}</span>` : ''}
-        <span>👥 2 Personen</span>
+        ${rezept.dauer ? `<span class="info-pille">${symbol.uhr({ groesse: 16 })} ${dauerText(rezept.dauer)}</span>` : ''}
+        <span class="info-pille">Für 2 Personen</span>
       </div>
 
       ${kategorienNamen.length ? `

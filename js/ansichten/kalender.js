@@ -5,11 +5,13 @@ import {
 } from '../db.js';
 import {
   schluessel, ausSchluessel, plusTage, wochenTage, monatsTage, gleicherTag, kalenderwoche,
-  wochentagKurz, datumKurz, datumLang, monatText, wochenText,
+  wochentagKurz, datumKurz, datumLang, monatText, wochenText, wochenStart,
 } from '../datum.js';
-import { sicher } from '../hilfen.js';
+import { sicher, dauerText, farbklasse } from '../hilfen.js';
 import { kopfSetzen } from '../kopf.js';
-import { kachel } from '../kachel.js';
+import { symbol } from '../symbole.js';
+import { blattHtml, blattAktivieren, blattOeffnen, blattSchliessen } from '../blatt.js';
+import { konfetti } from '../konfetti.js';
 import { rezeptlisteAnzeigen, neuerFilter } from '../rezeptliste.js';
 import { ziehenAktivieren } from '../ziehen.js';
 import { einkaufslisteBerechnen, einkaufslisteText } from '../einkaufsliste.js';
@@ -25,17 +27,20 @@ const zustand = {
 const auswahlFilter = neuerFilter();
 
 let container;
-let geplanteRezepte = []; // alle Rezepte der angezeigten Woche (für die Einkaufsliste)
-let einkaufText = '';      // fertiger Text der Einkaufsliste zum Kopieren
+let alleRezepteListe = [];    // alle Rezepte (zum Würfeln)
+let geplanteRezepte = [];     // alle Rezepte der angezeigten Woche (für Einkaufsliste und Würfel)
+let einkaufText = '';         // fertiger Text der Einkaufsliste zum Kopieren
+let neuerEintragId = null;    // dieser Eintrag "ploppt" beim nächsten Zeichnen herein
+let fortschrittVorher = null; // { woche, anzahl } – um eine gerade voll gewordene Woche zu feiern
 
 export async function anzeigen(ziel) {
-  kopfSetzen({ titel: 'Kalender' });
   // Eigener Bereich, damit der Klick-Listener verschwindet, sobald man die Ansicht verlässt
   container = document.createElement('div');
   container.className = 'kalender';
   container.addEventListener('click', geklickt);
   ziehenAktivieren(container, abgelegt);
   ziel.append(container);
+  fortschrittVorher = null;
   await zeichnen();
 }
 
@@ -56,6 +61,37 @@ function modusMerken(modus) {
   }
 }
 
+// "Diese Woche", "Nächste Woche", … oder "KW 45"
+function wochenName(montag) {
+  const abstand = Math.round((montag - wochenStart(new Date())) / (7 * 86400000));
+  if (abstand === 0) return 'Diese Woche';
+  if (abstand === 1) return 'Nächste Woche';
+  if (abstand === -1) return 'Letzte Woche';
+  return `KW ${kalenderwoche(montag)}`;
+}
+
+function kopfAktualisieren(istWoche, tage) {
+  const einheit = istWoche ? 'Woche' : 'Monat';
+  const aktionen = [];
+  if (istWoche) {
+    aktionen.push({
+      symbol: symbol.wagen({ groesse: 20 }),
+      label: 'Einkaufsliste',
+      hervorgehoben: true,
+      beiKlick: einkaufslisteOeffnen,
+    });
+  }
+  aktionen.push(
+    { symbol: symbol.links({ groesse: 20 }), label: `Vorige ${einheit}`, beiKlick: () => blaettern(-1) },
+    { symbol: symbol.rechts({ groesse: 20 }), label: `Nächste ${einheit}`, beiKlick: () => blaettern(1) },
+  );
+  kopfSetzen({
+    untertitel: 'Hallo ihr zwei!',
+    titel: istWoche ? wochenName(tage[0]) : monatText(zustand.datum),
+    aktionen,
+  });
+}
+
 async function zeichnen() {
   const istWoche = zustand.modus === 'woche';
   const tage = istWoche ? wochenTage(zustand.datum) : monatsTage(zustand.datum);
@@ -65,6 +101,7 @@ async function zeichnen() {
     alleRezepte(),
     alleKategorien(),
   ]);
+  alleRezepteListe = rezepte;
   const rezepteNachId = new Map(rezepte.map((r) => [r.id, r]));
   const kategorienNachId = new Map(kategorien.map((k) => [k.id, k]));
 
@@ -78,10 +115,13 @@ async function zeichnen() {
   }
   geplanteRezepte = [...proTag.values()].flat().map(({ rezept }) => rezept);
 
-  const zeitraum = istWoche
-    ? `<strong>${wochenText(tage)}</strong><span class="leise">KW ${kalenderwoche(tage[0])}</span>`
-    : `<strong>${monatText(zustand.datum)}</strong>`;
-  const einheit = istWoche ? 'Woche' : 'Monat';
+  kopfAktualisieren(istWoche, tage);
+
+  const heute = new Date();
+  const zeigtHeute = istWoche
+    ? tage.some((tag) => gleicherTag(tag, heute))
+    : zustand.datum.getMonth() === heute.getMonth() && zustand.datum.getFullYear() === heute.getFullYear();
+  const zeitraum = istWoche ? `${wochenText(tage)} · KW ${kalenderwoche(tage[0])}` : '';
 
   container.innerHTML = `
     <div class="kalender-leiste">
@@ -89,78 +129,143 @@ async function zeichnen() {
         <button type="button" data-modus="woche" aria-pressed="${istWoche}">Woche</button>
         <button type="button" data-modus="monat" aria-pressed="${!istWoche}">Monat</button>
       </div>
-      <button type="button" class="knopf" data-heute>Heute</button>
+      ${zeigtHeute
+        ? `<span class="zeitraum">${zeitraum}</span>`
+        : '<button type="button" class="knopf knopf-klein" data-heute>Zu heute</button>'}
     </div>
-
-    <div class="kalender-navigation">
-      <button type="button" class="knopf-symbol" data-schritt="-1"
-              aria-label="Vorige ${einheit}" title="Vorige ${einheit}">‹</button>
-      <div class="kalender-zeitraum" aria-live="polite">${zeitraum}</div>
-      <button type="button" class="knopf-symbol" data-schritt="1"
-              aria-label="Nächste ${einheit}" title="Nächste ${einheit}">›</button>
-    </div>
-
-    ${istWoche ? `
-      <button type="button" class="knopf einkauf-knopf" data-einkaufsliste>
-        🛒 Einkaufsliste kopieren
-      </button>` : ''}
 
     ${istWoche
       ? wocheHtml(tage, proTag, kategorienNachId)
       : monatHtml(tage, proTag)}
 
-    <dialog class="auswahl" aria-labelledby="auswahl-titel">
-      <div class="auswahl-kopf">
-        <h2 id="auswahl-titel"></h2>
-        <button type="button" class="knopf-symbol" data-schliessen aria-label="Schließen">✕</button>
-      </div>
-      <div class="auswahl-inhalt"></div>
-    </dialog>
-
-    <dialog class="auswahl einkauf" aria-labelledby="einkauf-titel">
-      <div class="auswahl-kopf">
-        <h2 id="einkauf-titel">Einkaufsliste</h2>
-        <button type="button" class="knopf-symbol" data-schliessen aria-label="Schließen">✕</button>
-      </div>
-      <div class="einkauf-inhalt"></div>
-    </dialog>
+    ${blattHtml({ klasse: 'auswahl', titelId: 'auswahl-titel' })}
+    ${blattHtml({ klasse: 'einkauf', titelId: 'einkauf-titel' })}
   `;
 
-  // Tippen auf den abgedunkelten Hintergrund schließt ein Overlay
-  for (const dialog of container.querySelectorAll('dialog')) {
-    dialog.addEventListener('click', (ereignis) => {
-      if (ereignis.target === dialog) dialog.close();
-    });
+  for (const dialog of container.querySelectorAll('dialog')) blattAktivieren(dialog);
+
+  // Gerade eingeplantes Gericht hereinploppen lassen
+  if (neuerEintragId) {
+    container.querySelector(`[data-eintrag="${neuerEintragId}"]`)?.classList.add('neu');
+    neuerEintragId = null;
   }
+
+  if (istWoche) feiernWennVoll(tage, proTag);
 }
+
+// ---------- Wochenansicht ----------
 
 function wocheHtml(tage, proTag, kategorienNachId) {
   const heute = new Date();
+  const geplanteTage = tage.filter((tag) => proTag.has(schluessel(tag))).length;
+
   return `
+    <div class="wochenstreifen">
+      ${tage.map((tag) => {
+        const klassen = ['streifen-tag'];
+        if (gleicherTag(tag, heute)) klassen.push('heute');
+        if (proTag.has(schluessel(tag))) klassen.push('geplant');
+        return `
+          <button type="button" class="${klassen.join(' ')}" data-tag="${schluessel(tag)}" data-springen
+                  aria-label="${datumLang(tag)}">
+            <span class="streifen-name">${wochentagKurz(tag)}</span>
+            <span class="streifen-zahl">${tag.getDate()}</span>
+            <span class="streifen-punkt"></span>
+          </button>
+        `;
+      }).join('')}
+    </div>
+
+    ${fortschrittHtml(geplanteTage)}
+
     <div class="woche">
       ${tage.map((tag) => {
         const geplant = proTag.get(schluessel(tag)) ?? [];
+        const istHeute = gleicherTag(tag, heute);
         return `
-          <section class="tag ${gleicherTag(tag, heute) ? 'heute' : ''}" data-tag="${schluessel(tag)}"
+          <section class="tag ${istHeute ? 'heute' : ''}" data-tag="${schluessel(tag)}" id="tag-${schluessel(tag)}"
                    aria-label="${datumLang(tag)}">
-            <div class="tag-kopf">
-              <span class="tag-name">${wochentagKurz(tag)}</span>
-              <span class="tag-datum">${datumKurz(tag)}</span>
-            </div>
-            <div class="tag-inhalt">
-              ${geplant.map(({ eintrag, rezept }) => `
-                <div class="plan-eintrag" data-eintrag="${eintrag.id}">
-                  ${kachel(rezept, kategorienNachId)}
-                </div>
-              `).join('')}
-              ${geplant.length ? '' : plusKnopf(tag, 'tag-plus')}
-            </div>
+            ${geplant.map(({ eintrag, rezept }) => planKarte(tag, eintrag, rezept, kategorienNachId, istHeute)).join('')}
+            ${geplant.length ? '' : leererTag(tag, istHeute)}
           </section>
         `;
       }).join('')}
     </div>
   `;
 }
+
+function fortschrittHtml(anzahl) {
+  const voll = anzahl === 7;
+  const rest = 7 - anzahl;
+  let titel = `${anzahl} von 7 Abenden geplant`;
+  let text = rest === 1 ? 'Noch 1 Tag – würfelt doch was aus!' : `Noch ${rest} Tage – würfelt doch was aus!`;
+  if (anzahl === 0) {
+    titel = 'Noch nichts geplant';
+    text = 'Tippt auf ＋ oder lasst den Würfel entscheiden.';
+  }
+  if (voll) {
+    titel = 'Guten Appetit! 🎉';
+    text = 'Die ganze Woche ist geplant.';
+  }
+  return `
+    <div class="fortschritt ${voll ? 'voll' : ''}">
+      <div class="ring" style="--anteil: ${anzahl / 7}" role="img" aria-label="${anzahl} von 7 Abenden geplant">
+        <span>${voll ? symbol.haken({ groesse: 20 }) : `${anzahl}/7`}</span>
+      </div>
+      <div class="fortschritt-text">
+        <strong>${titel}</strong>
+        <span>${text}</span>
+      </div>
+    </div>
+  `;
+}
+
+function planKarte(tag, eintrag, rezept, kategorienNachId, istHeute) {
+  const kategorie = (rezept.kategorien ?? [])
+    .map((id) => kategorienNachId.get(id)?.name)
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b, 'de'))[0];
+  const info = [dauerText(rezept.dauer), kategorie].filter(Boolean).join(' · ');
+  const tagText = istHeute ? `Heute Abend · ${wochentagKurz(tag)}` : `${wochentagKurz(tag)} ${datumKurz(tag)}`;
+
+  return `
+    <div class="plan-eintrag" data-eintrag="${eintrag.id}">
+      <button type="button" class="plan-karte ${istHeute ? 'heute' : ''}" data-id="${rezept.id}">
+        <span class="plan-bild ${farbklasse(rezept.id)}">
+          ${rezept.bild ? `<img src="${rezept.bild}" alt="">` : symbol.teller({ groesse: istHeute ? 48 : 28 })}
+        </span>
+        <span class="plan-text">
+          <span class="plan-tag">${tagText}</span>
+          <span class="plan-titel">${sicher(rezept.titel)}</span>
+          ${info ? `<span class="plan-info">${sicher(info)}</span>` : ''}
+        </span>
+        ${rezept.favorit ? `<span class="plan-stern" title="Favorit">${symbol.stern({ groesse: 22, fuellung: 'currentColor' })}</span>` : ''}
+      </button>
+    </div>
+  `;
+}
+
+function leererTag(tag, istHeute) {
+  const tagText = istHeute ? `Heute · ${wochentagKurz(tag)} ${datumKurz(tag)}` : `${wochentagKurz(tag)} ${datumKurz(tag)}`;
+  return `
+    <div class="leerer-tag ${istHeute ? 'heute' : ''}">
+      <span class="leer-text">
+        <span class="plan-tag">${tagText}</span>
+        <span class="leer-hinweis">Noch nichts geplant</span>
+      </span>
+      <button type="button" class="knopf-wuerfel" data-wuerfeln="${schluessel(tag)}"
+              aria-label="Zufälliges Rezept für ${datumLang(tag)} würfeln">
+        ${symbol.wuerfel({ groesse: 18 })} Würfeln
+      </button>
+      <button type="button" class="knopf-plus" data-planen="${schluessel(tag)}"
+              aria-label="Rezept für ${datumLang(tag)} einplanen">
+        ${symbol.plus({ groesse: 20 })}
+      </button>
+    </div>
+  `;
+}
+
+// ---------- Monatsansicht ----------
 
 function monatHtml(tage, proTag) {
   const heute = new Date();
@@ -180,10 +285,12 @@ function monatHtml(tage, proTag) {
             <span class="monat-zahl">${tag.getDate()}</span>
             ${geplant.map(({ eintrag, rezept }) => `
               <div class="plan-eintrag" data-eintrag="${eintrag.id}">
-                <button type="button" class="monat-eintrag" data-id="${rezept.id}">${sicher(rezept.titel)}</button>
+                <button type="button" class="monat-eintrag ${farbklasse(rezept.id)}" data-id="${rezept.id}">${sicher(rezept.titel)}</button>
               </div>
             `).join('')}
-            ${geplant.length ? '' : plusKnopf(tag, 'monat-plus')}
+            ${geplant.length ? '' : `
+              <button type="button" class="monat-plus" data-planen="${schluessel(tag)}"
+                      aria-label="Rezept für ${datumLang(tag)} einplanen">${symbol.plus({ groesse: 16 })}</button>`}
           </div>
         `;
       }).join('')}
@@ -191,40 +298,40 @@ function monatHtml(tage, proTag) {
   `;
 }
 
-function plusKnopf(tag, klasse) {
-  return `
-    <button type="button" class="${klasse}" data-planen="${schluessel(tag)}"
-            aria-label="Rezept für ${datumLang(tag)} einplanen">＋</button>
-  `;
+// ---------- Bedienung ----------
+
+async function blaettern(schritt) {
+  const d = zustand.datum;
+  zustand.datum = zustand.modus === 'woche'
+    ? plusTage(d, 7 * schritt)
+    : new Date(d.getFullYear(), d.getMonth() + schritt, 1);
+  fortschrittVorher = null;
+  await zeichnen();
 }
 
 async function geklickt(ereignis) {
   const ziel = ereignis.target.closest('button');
   if (!ziel || !container.contains(ziel)) return;
 
-  // Klicks innerhalb des Auswahl-Overlays verarbeitet die Rezeptliste selbst
-  if (ziel.closest('.auswahl-inhalt')) return;
+  // Klicks innerhalb des Auswahl-Blatts verarbeitet die Rezeptliste selbst
+  if (ziel.closest('.auswahl .blatt-inhalt')) return;
 
   if (ziel.dataset.modus) {
     zustand.modus = ziel.dataset.modus;
     modusMerken(zustand.modus);
+    fortschrittVorher = null;
     await zeichnen();
   } else if (ziel.hasAttribute('data-heute')) {
     zustand.datum = new Date();
+    fortschrittVorher = null;
     await zeichnen();
-  } else if (ziel.dataset.schritt) {
-    const schritt = Number(ziel.dataset.schritt);
-    const d = zustand.datum;
-    zustand.datum = zustand.modus === 'woche'
-      ? plusTage(d, 7 * schritt)
-      : new Date(d.getFullYear(), d.getMonth() + schritt, 1);
-    await zeichnen();
+  } else if (ziel.hasAttribute('data-springen')) {
+    container.querySelector(`#tag-${ziel.dataset.tag}`)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   } else if (ziel.dataset.planen) {
     await auswahlOeffnen(ziel.dataset.planen);
-  } else if (ziel.hasAttribute('data-schliessen')) {
-    ziel.closest('dialog').close();
-  } else if (ziel.hasAttribute('data-einkaufsliste')) {
-    einkaufslisteOeffnen();
+  } else if (ziel.dataset.wuerfeln) {
+    await wuerfeln(ziel.dataset.wuerfeln, ziel);
   } else if (ziel.hasAttribute('data-kopieren')) {
     await kopieren(ziel);
   } else if (ziel.dataset.id) {
@@ -239,46 +346,78 @@ async function abgelegt(eintragId, ziel) {
     await planEntfernen(eintragId);
   } else {
     await planVerschieben(eintragId, ziel.datum);
+    neuerEintragId = eintragId;
   }
   await zeichnen();
 }
 
-// Öffnet das Overlay mit allen Rezepten, um eins für den Tag auszuwählen.
+// Würfelt ein zufälliges Rezept für einen Tag. Bevorzugt Rezepte, die diese Woche
+// noch nicht dran sind – Favoriten haben doppelte Chancen.
+async function wuerfeln(tagSchluessel, knopf) {
+  if (alleRezepteListe.length === 0) {
+    await auswahlOeffnen(tagSchluessel);
+    return;
+  }
+  const schonGeplant = new Set(geplanteRezepte.map((r) => r.id));
+  const frische = alleRezepteListe.filter((r) => !schonGeplant.has(r.id));
+  const auswahl = frische.length ? frische : alleRezepteListe;
+  const lose = auswahl.flatMap((r) => (r.favorit ? [r, r] : [r]));
+  const rezept = lose[Math.floor(Math.random() * lose.length)];
+
+  knopf.classList.add('rollt');
+  navigator.vibrate?.(20);
+  await new Promise((fertig) => setTimeout(fertig, 450));
+
+  neuerEintragId = await planEintragen(tagSchluessel, rezept.id);
+  await zeichnen();
+}
+
+// Feiert mit Konfetti, wenn die Woche gerade eben voll geworden ist
+function feiernWennVoll(tage, proTag) {
+  const woche = schluessel(tage[0]);
+  const anzahl = tage.filter((tag) => proTag.has(schluessel(tag))).length;
+  if (fortschrittVorher?.woche === woche && fortschrittVorher.anzahl < 7 && anzahl === 7) {
+    konfetti();
+    navigator.vibrate?.([30, 60, 30]);
+  }
+  fortschrittVorher = { woche, anzahl };
+}
+
+// Öffnet das Blatt mit allen Rezepten, um eins für den Tag auszuwählen.
 async function auswahlOeffnen(tagSchluessel) {
-  const dialog = container.querySelector('dialog.auswahl:not(.einkauf)');
-  dialog.querySelector('h2').textContent = `Rezept für ${datumLang(ausSchluessel(tagSchluessel))}`;
+  const dialog = container.querySelector('dialog.auswahl');
   auswahlFilter.suche = ''; // Suche startet jedes Mal leer, die Filter bleiben
 
-  await rezeptlisteAnzeigen(dialog.querySelector('.auswahl-inhalt'), {
+  await rezeptlisteAnzeigen(dialog.querySelector('.blatt-inhalt'), {
     filter: auswahlFilter,
     beiAuswahl: async (rezept) => {
-      await planEintragen(tagSchluessel, rezept.id);
-      dialog.close();
+      neuerEintragId = await planEintragen(tagSchluessel, rezept.id);
+      blattSchliessen(dialog);
       await zeichnen();
     },
     leerText: `
       <div class="hinweis">
         <p>Noch keine Rezepte vorhanden.</p>
-        <a class="knopf knopf-haupt" href="#/rezept/neu">＋ Erstes Rezept anlegen</a>
+        <a class="knopf knopf-haupt" href="#/rezept/neu">${symbol.plus({ groesse: 18 })} Erstes Rezept anlegen</a>
       </div>
     `,
   });
 
-  dialog.showModal();
+  blattOeffnen(dialog, `Rezept für ${datumLang(ausSchluessel(tagSchluessel))}`);
 }
 
-// Zeigt die Einkaufsliste der angezeigten Woche als Vorschau an
+// ---------- Einkaufsliste ----------
+
 function einkaufslisteOeffnen() {
   const dialog = container.querySelector('dialog.einkauf');
-  const inhalt = dialog.querySelector('.einkauf-inhalt');
+  const inhalt = dialog.querySelector('.blatt-inhalt');
   const tage = wochenTage(zustand.datum);
   const titel = `Einkaufsliste ${datumKurz(tage[0])}–${datumKurz(tage[6])}`;
-  dialog.querySelector('h2').textContent = titel;
 
   if (geplanteRezepte.length === 0) {
     einkaufText = '';
     inhalt.innerHTML = '<p class="hinweis">Für diese Woche ist noch nichts geplant.</p>';
-    dialog.showModal();
+    blattOeffnen(dialog, titel);
     return;
   }
 
@@ -297,13 +436,13 @@ function einkaufslisteOeffnen() {
           </li>
         `).join('')}
       </ul>` : '<p class="hinweis">Die geplanten Rezepte haben keine Zutaten.</p>'}
-    <div class="einkauf-aktionen">
+    <div class="blatt-aktionen">
       <button type="button" class="knopf knopf-haupt" data-kopieren ${liste.length ? '' : 'disabled'}>
-        📋 In die Zwischenablage kopieren
+        ${symbol.kopieren({ groesse: 20 })} <span>In die Zwischenablage kopieren</span>
       </button>
     </div>
   `;
-  dialog.showModal();
+  blattOeffnen(dialog, titel);
 }
 
 // Kopiert die Einkaufsliste, damit man sie z. B. in Notizen einfügen kann
@@ -315,8 +454,11 @@ async function kopieren(knopf) {
   } catch {
     geklappt = altmodischKopieren(einkaufText);
   }
-  knopf.textContent = geklappt ? '✓ Kopiert! Jetzt in Notizen einfügen' : 'Kopieren hat nicht geklappt';
+  knopf.innerHTML = geklappt
+    ? `${symbol.haken({ groesse: 20 })} <span>Kopiert! Jetzt in Notizen einfügen</span>`
+    : '<span>Kopieren hat nicht geklappt</span>';
   knopf.classList.toggle('kopiert', geklappt);
+  if (geklappt) navigator.vibrate?.(15);
 }
 
 // Ersatzweg für Browser, die navigator.clipboard nicht erlauben

@@ -7,8 +7,20 @@ import * as rezeptAnsicht from './ansichten/rezept-ansicht.js';
 import * as rezeptBearbeiten from './ansichten/rezept-bearbeiten.js';
 import * as kategorien from './ansichten/kategorien.js';
 import { beispieleLaden } from './beispieldaten.js';
+import { symbol } from './symbole.js';
 
 const inhalt = document.getElementById('inhalt');
+
+// Die Höhe der Kopfzeile als CSS-Variable bereitstellen (für den klebenden Wochenstreifen)
+const kopfzeile = document.querySelector('.kopfzeile');
+new ResizeObserver(() => {
+  document.documentElement.style.setProperty('--kopf-hoehe', `${kopfzeile.offsetHeight}px`);
+}).observe(kopfzeile);
+
+// Symbole in der unteren Navigation einsetzen
+for (const platz of document.querySelectorAll('.nav-symbol')) {
+  platz.innerHTML = symbol[platz.dataset.symbol]();
+}
 
 // Ordnet eine Adresse einer Ansicht zu.
 // "bereich" bestimmt, welcher Punkt in der Navigation hervorgehoben wird.
@@ -45,9 +57,12 @@ async function ansichtWechseln() {
     link.classList.toggle('aktiv', link.dataset.ansicht === ansicht.bereich);
   }
 
-  inhalt.innerHTML = '';
+  // Jede Ansicht bekommt einen frischen Bereich – der blendet beim Erscheinen sanft ein
+  const bereich = document.createElement('div');
+  bereich.className = 'ansicht';
+  inhalt.replaceChildren(bereich);
   window.scrollTo(0, 0);
-  await ansicht.modul.anzeigen(inhalt, ansicht.parameter);
+  await ansicht.modul.anzeigen(bereich, ansicht.parameter);
 }
 
 window.addEventListener('hashchange', ansichtWechseln);

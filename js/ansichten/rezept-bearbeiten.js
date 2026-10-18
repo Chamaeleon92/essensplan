@@ -3,6 +3,7 @@
 import { holen, speichern, rezeptLoeschen, alleKategorien, alleZutatenNamen, neueId } from '../db.js';
 import { sicher, gleicherName, EINHEITEN, zahl, zahlLesen, htmlBereinigen, bildVerkleinern } from '../hilfen.js';
 import { kopfSetzen, zurueckGehen } from '../kopf.js';
+import { symbol } from '../symbole.js';
 
 const FORMATIERUNGEN = [
   { befehl: 'bold', label: 'Fett', symbol: '<b>F</b>' },
@@ -91,7 +92,7 @@ export async function anzeigen(container, id) {
         <div class="zutaten-zeilen">
           ${zutaten.map(zutatZeile).join('')}
         </div>
-        <button type="button" class="knopf" data-zutat-plus>＋ Zutat</button>
+        <button type="button" class="knopf" data-zutat-plus>${symbol.plus({ groesse: 18 })} Zutat hinzufügen</button>
       </fieldset>
 
       <div class="feld">
@@ -115,7 +116,7 @@ export async function anzeigen(container, id) {
         <button type="submit" class="knopf knopf-haupt">Speichern</button>
       </div>
 
-      ${istNeu ? '' : '<button type="button" class="knopf knopf-gefahr" data-loeschen>🗑️ Rezept löschen</button>'}
+      ${istNeu ? '' : `<button type="button" class="knopf knopf-gefahr" data-loeschen>${symbol.muell({ groesse: 20 })} Rezept löschen</button>`}
     </form>
 
     <datalist id="zutaten-vorschlaege">
@@ -144,11 +145,13 @@ export async function anzeigen(container, id) {
 function bildVorschau() {
   return rezept.bild
     ? `<img src="${rezept.bild}" alt="Rezeptbild">`
-    : '<span class="bild-leer"><span aria-hidden="true">📷</span>Foto aufnehmen oder auswählen</span>';
+    : `<span class="bild-leer">${symbol.kamera({ groesse: 40 })}Foto aufnehmen oder auswählen</span>`;
 }
 
 function favoritText() {
-  return rezept.favorit ? '⭐ Favorit' : '☆ Als Favorit markieren';
+  return rezept.favorit
+    ? `${symbol.stern({ groesse: 20, fuellung: 'currentColor' })} Lieblingsrezept`
+    : `${symbol.stern({ groesse: 20 })} Als Lieblingsrezept markieren`;
 }
 
 function zutatZeile(zutat) {
@@ -162,7 +165,7 @@ function zutatZeile(zutat) {
       <select class="eingabe zutat-einheit" aria-label="Einheit">
         ${EINHEITEN.map((e) => `<option ${e === zutat.einheit ? 'selected' : ''}>${e}</option>`).join('')}
       </select>
-      <button type="button" class="knopf-symbol" data-zutat-entfernen aria-label="Zutat entfernen">✕</button>
+      <button type="button" class="knopf-symbol" data-zutat-entfernen aria-label="Zutat entfernen">${symbol.schliessen({ groesse: 18 })}</button>
     </div>
   `;
 }
@@ -186,7 +189,7 @@ async function geklickt(ereignis) {
   } else if (knopf.hasAttribute('data-favorit')) {
     rezept.favorit = !rezept.favorit;
     knopf.setAttribute('aria-pressed', String(rezept.favorit));
-    knopf.textContent = favoritText();
+    knopf.innerHTML = favoritText();
   } else if (knopf.hasAttribute('data-bild-entfernen')) {
     rezept.bild = null;
     formular.querySelector('.bild-vorschau').innerHTML = bildVorschau();

@@ -145,8 +145,11 @@ export function planImZeitraum(von, bis) {
   });
 }
 
-export function planEintragen(datum, rezeptId) {
-  return speichern('plan', { id: neueId(), datum, rezeptId });
+// Gibt die ID des neuen Eintrags zurück
+export async function planEintragen(datum, rezeptId) {
+  const id = neueId();
+  await speichern('plan', { id, datum, rezeptId });
+  return id;
 }
 
 export function planVerschieben(id, datum) {
