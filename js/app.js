@@ -30,7 +30,7 @@ function ansichtFinden(teile) {
 
 async function ansichtWechseln() {
   // Aus "#/rezept/123/bearbeiten" wird ["rezept", "123", "bearbeiten"].
-  const teile = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
+  const teile = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
   const ansicht = ansichtFinden(teile);
 
   for (const link of document.querySelectorAll('.navigation a')) {

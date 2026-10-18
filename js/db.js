@@ -133,3 +133,18 @@ export async function alleZutatenNamen() {
   }
   return [...namen.values()].sort((a, b) => a.localeCompare(b, 'de'));
 }
+
+// ---------- Kalender (Plan) ----------
+// Ein Planeintrag sieht so aus: { id, datum: "2026-10-20", rezeptId }
+
+// Alle Einträge zwischen zwei Tagen (jeweils einschließlich), z. B. für eine Woche
+export function planImZeitraum(von, bis) {
+  return transaktion('plan', 'readonly', (tx) => {
+    const bereich = IDBKeyRange.bound(von, bis);
+    return warten(tx.objectStore('plan').index('datum').getAll(bereich));
+  });
+}
+
+export function planEintragen(datum, rezeptId) {
+  return speichern('plan', { id: neueId(), datum, rezeptId });
+}
