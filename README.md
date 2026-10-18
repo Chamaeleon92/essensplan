@@ -20,6 +20,7 @@ Ein Doppelklick auf `index.html` reicht nicht: Die App ist in mehrere JavaScript
 | `js/db.js` | Datenspeicherung im Browser (IndexedDB) |
 | `js/hilfen.js` | Hilfsfunktionen (Mengen, Dauer, Bilder verkleinern, Text bereinigen) |
 | `js/datum.js` | Datumsfunktionen (Wochen, Monate, Kalenderwoche, deutsche Formate) |
+| `js/einkaufsliste.js` | Einkaufsliste berechnen (zusammenrechnen, umrechnen, sortieren) |
 | `js/ziehen.js` | Drag & Drop im Kalender (Maus und Finger) mit Papierkorb |
 | `js/beispieldaten.js` | 8 Beispielrezepte zum Ausprobieren |
 | `js/kopf.js` | Kopfzeile mit Titel, Zurück-Knopf und Aktionen |

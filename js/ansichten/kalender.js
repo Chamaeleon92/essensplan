@@ -12,6 +12,7 @@ import { kopfSetzen } from '../kopf.js';
 import { kachel } from '../kachel.js';
 import { rezeptlisteAnzeigen, neuerFilter } from '../rezeptliste.js';
 import { ziehenAktivieren } from '../ziehen.js';
+import { einkaufslisteBerechnen, einkaufslisteText } from '../einkaufsliste.js';
 
 const WOCHENTAGE = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 
@@ -24,6 +25,8 @@ const zustand = {
 const auswahlFilter = neuerFilter();
 
 let container;
+let geplanteRezepte = []; // alle Rezepte der angezeigten Woche (für die Einkaufsliste)
+let einkaufText = '';      // fertiger Text der Einkaufsliste zum Kopieren
 
 export async function anzeigen(ziel) {
   kopfSetzen({ titel: 'Kalender' });
@@ -73,6 +76,7 @@ async function zeichnen() {
     if (!proTag.has(eintrag.datum)) proTag.set(eintrag.datum, []);
     proTag.get(eintrag.datum).push({ eintrag, rezept });
   }
+  geplanteRezepte = [...proTag.values()].flat().map(({ rezept }) => rezept);
 
   const zeitraum = istWoche
     ? `<strong>${wochenText(tage)}</strong><span class="leise">KW ${kalenderwoche(tage[0])}</span>`
@@ -96,6 +100,11 @@ async function zeichnen() {
               aria-label="Nächste ${einheit}" title="Nächste ${einheit}">›</button>
     </div>
 
+    ${istWoche ? `
+      <button type="button" class="knopf einkauf-knopf" data-einkaufsliste>
+        🛒 Einkaufsliste kopieren
+      </button>` : ''}
+
     ${istWoche
       ? wocheHtml(tage, proTag, kategorienNachId)
       : monatHtml(tage, proTag)}
@@ -107,13 +116,22 @@ async function zeichnen() {
       </div>
       <div class="auswahl-inhalt"></div>
     </dialog>
+
+    <dialog class="auswahl einkauf" aria-labelledby="einkauf-titel">
+      <div class="auswahl-kopf">
+        <h2 id="einkauf-titel">Einkaufsliste</h2>
+        <button type="button" class="knopf-symbol" data-schliessen aria-label="Schließen">✕</button>
+      </div>
+      <div class="einkauf-inhalt"></div>
+    </dialog>
   `;
 
-  const dialog = container.querySelector('dialog');
-  // Tippen auf den abgedunkelten Hintergrund schließt das Overlay
-  dialog.addEventListener('click', (ereignis) => {
-    if (ereignis.target === dialog) dialog.close();
-  });
+  // Tippen auf den abgedunkelten Hintergrund schließt ein Overlay
+  for (const dialog of container.querySelectorAll('dialog')) {
+    dialog.addEventListener('click', (ereignis) => {
+      if (ereignis.target === dialog) dialog.close();
+    });
+  }
 }
 
 function wocheHtml(tage, proTag, kategorienNachId) {
@@ -204,7 +222,11 @@ async function geklickt(ereignis) {
   } else if (ziel.dataset.planen) {
     await auswahlOeffnen(ziel.dataset.planen);
   } else if (ziel.hasAttribute('data-schliessen')) {
-    container.querySelector('dialog').close();
+    ziel.closest('dialog').close();
+  } else if (ziel.hasAttribute('data-einkaufsliste')) {
+    einkaufslisteOeffnen();
+  } else if (ziel.hasAttribute('data-kopieren')) {
+    await kopieren(ziel);
   } else if (ziel.dataset.id) {
     // Klick auf ein geplantes Gericht öffnet das Rezept
     location.hash = `#/rezept/${ziel.dataset.id}`;
@@ -223,7 +245,7 @@ async function abgelegt(eintragId, ziel) {
 
 // Öffnet das Overlay mit allen Rezepten, um eins für den Tag auszuwählen.
 async function auswahlOeffnen(tagSchluessel) {
-  const dialog = container.querySelector('dialog');
+  const dialog = container.querySelector('dialog.auswahl:not(.einkauf)');
   dialog.querySelector('h2').textContent = `Rezept für ${datumLang(ausSchluessel(tagSchluessel))}`;
   auswahlFilter.suche = ''; // Suche startet jedes Mal leer, die Filter bleiben
 
@@ -243,4 +265,75 @@ async function auswahlOeffnen(tagSchluessel) {
   });
 
   dialog.showModal();
+}
+
+// Zeigt die Einkaufsliste der angezeigten Woche als Vorschau an
+function einkaufslisteOeffnen() {
+  const dialog = container.querySelector('dialog.einkauf');
+  const inhalt = dialog.querySelector('.einkauf-inhalt');
+  const tage = wochenTage(zustand.datum);
+  const titel = `Einkaufsliste ${datumKurz(tage[0])}–${datumKurz(tage[6])}`;
+  dialog.querySelector('h2').textContent = titel;
+
+  if (geplanteRezepte.length === 0) {
+    einkaufText = '';
+    inhalt.innerHTML = '<p class="hinweis">Für diese Woche ist noch nichts geplant.</p>';
+    dialog.showModal();
+    return;
+  }
+
+  const liste = einkaufslisteBerechnen(geplanteRezepte);
+  einkaufText = einkaufslisteText(liste, titel);
+  const anzahl = geplanteRezepte.length;
+
+  inhalt.innerHTML = `
+    <p class="anzahl">${liste.length} Zutaten aus ${anzahl} ${anzahl === 1 ? 'Gericht' : 'Gerichten'}</p>
+    ${liste.length ? `
+      <ul class="einkauf-liste">
+        ${liste.map(({ name, menge }) => `
+          <li>
+            <span class="zutat-mengenangabe">${menge ? sicher(menge) : '<span class="leise">nach Geschmack</span>'}</span>
+            <span>${sicher(name)}</span>
+          </li>
+        `).join('')}
+      </ul>` : '<p class="hinweis">Die geplanten Rezepte haben keine Zutaten.</p>'}
+    <div class="einkauf-aktionen">
+      <button type="button" class="knopf knopf-haupt" data-kopieren ${liste.length ? '' : 'disabled'}>
+        📋 In die Zwischenablage kopieren
+      </button>
+    </div>
+  `;
+  dialog.showModal();
+}
+
+// Kopiert die Einkaufsliste, damit man sie z. B. in Notizen einfügen kann
+async function kopieren(knopf) {
+  let geklappt = false;
+  try {
+    await navigator.clipboard.writeText(einkaufText);
+    geklappt = true;
+  } catch {
+    geklappt = altmodischKopieren(einkaufText);
+  }
+  knopf.textContent = geklappt ? '✓ Kopiert! Jetzt in Notizen einfügen' : 'Kopieren hat nicht geklappt';
+  knopf.classList.toggle('kopiert', geklappt);
+}
+
+// Ersatzweg für Browser, die navigator.clipboard nicht erlauben
+function altmodischKopieren(text) {
+  const feld = document.createElement('textarea');
+  feld.value = text;
+  feld.setAttribute('readonly', '');
+  feld.style.position = 'fixed';
+  feld.style.opacity = '0';
+  document.body.append(feld);
+  feld.select();
+  let geklappt = false;
+  try {
+    geklappt = document.execCommand('copy');
+  } catch {
+    geklappt = false;
+  }
+  feld.remove();
+  return geklappt;
 }

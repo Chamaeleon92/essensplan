@@ -31,11 +31,14 @@ export function zahlLesen(text) {
   return Number.isFinite(wert) && wert > 0 ? wert : null;
 }
 
-// "200 g", "3 Stück", "nach Geschmack" – oder '' wenn es keine Menge gibt
+const MEHRZAHL = { Prise: 'Prisen', Packung: 'Packungen', Dose: 'Dosen' };
+
+// "200 g", "3 Stück", "2 Dosen", "nach Geschmack" – oder '' wenn es keine Menge gibt
 export function mengeText(menge, einheit) {
   if (einheit === 'nach Geschmack') return 'nach Geschmack';
   if (menge == null) return '';
-  return `${zahl(menge)} ${einheit}`;
+  const anzeige = menge > 1 ? (MEHRZAHL[einheit] ?? einheit) : einheit;
+  return `${zahl(menge)} ${anzeige}`;
 }
 
 export function dauerText(minuten) {

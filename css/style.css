@@ -475,7 +475,7 @@ select.eingabe {
 }
 
 .zutat-mengenangabe {
-  flex: 0 0 130px;
+  flex: 0 0 150px;
   color: var(--text-leise);
 }
 
@@ -1082,4 +1082,51 @@ body.zieht * {
 @keyframes papierkorb-einblenden {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Einkaufsliste ---------- */
+.einkauf-knopf {
+  width: 100%;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.einkauf-inhalt {
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+}
+
+.einkauf-liste {
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+}
+
+.einkauf-liste li {
+  display: flex;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--rand);
+}
+
+.einkauf-aktionen {
+  position: sticky;
+  bottom: 0;
+  padding: 8px 0 0;
+  background: var(--hintergrund);
+}
+
+.einkauf-aktionen .knopf {
+  width: 100%;
+}
+
+.knopf.kopiert {
+  background: var(--flaeche);
+  border-color: var(--akzent);
+  color: var(--akzent);
+}
+
+@media (min-width: 1000px) {
+  .einkauf-knopf {
+    width: auto;
+  }
 }
