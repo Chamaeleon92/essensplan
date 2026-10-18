@@ -1,8 +1,8 @@
-// Beispielrezepte zum Ausprobieren. Werden über "Beispielrezepte laden" (leere Rezeptliste)
+// Beispielrezepte zum Ausprobieren. Werden über "Beispielrezepte laden" (Rezepte oder Kategorien)
 // oder die Adresse #/beispieldaten angelegt. Rezepte, deren Titel es schon gibt, werden übersprungen.
 
 import { alleRezepte, alleKategorien, speichern, neueId, planImZeitraum, planEintragen } from './db.js';
-import { schluessel, wochenTage, plusTage } from './datum.js';
+import { schluessel, wochenStart, plusTage } from './datum.js';
 import { gleicherName } from './hilfen.js';
 
 const z = (name, menge, einheit) => ({ name, menge, einheit });
@@ -114,6 +114,139 @@ const BEISPIELE = [
       <li>In Butter goldbraun backen, wenden und <i>mit zwei Gabeln zerreißen</i>.</li>
       <li>Mit Puderzucker und Apfelmus servieren.</li></ol>`,
   },
+  {
+    titel: 'Ofenkartoffeln mit Kräuterquark', dauer: 50, favorit: false, farbe: '#f3d9a4', symbol: '🥔',
+    kategorien: ['Deutsch', 'Vegetarisch', 'Ofengericht / Auflauf'],
+    zutaten: [
+      z('Kartoffeln', 800, 'g'), z('Quark', 250, 'g'), z('Olivenöl', 2, 'EL'),
+      geschmack('Schnittlauch'), geschmack('Salz'),
+    ],
+    zubereitung: `<ol>
+      <li>Kartoffeln halbieren, mit Öl und Salz bei <b>200 °C</b> etwa <i>40 Minuten</i> backen.</li>
+      <li>Quark mit Schnittlauch und Salz verrühren.</li></ol>`,
+  },
+  {
+    titel: 'Shakshuka', dauer: 25, favorit: true, farbe: '#e9a07e', symbol: '🍳',
+    kategorien: ['Orientalisch', 'Vegetarisch', 'Pfannengericht', 'Schnell (unter 30 Min.)'],
+    zutaten: [
+      z('Eier', 4, 'Stück'), z('Passierte Tomaten', 500, 'g'), z('Paprika', 1, 'Stück'),
+      z('Zwiebeln', 1, 'Stück'), z('Kreuzkümmel', 1, 'TL'), z('Feta', 100, 'g'),
+    ],
+    zubereitung: `<ol>
+      <li>Zwiebel und Paprika anbraten, Kreuzkümmel dazu.</li>
+      <li>Tomaten einrühren und <i>10 Minuten</i> köcheln.</li>
+      <li>Mulden formen, <b>Eier hineinschlagen</b>, zugedeckt stocken lassen, Feta darüberbröseln.</li></ol>`,
+  },
+  {
+    titel: 'Pizza Margherita', dauer: 40, favorit: false, farbe: null, symbol: null,
+    kategorien: ['Italienisch', 'Vegetarisch', 'Für Gäste'],
+    zutaten: [
+      z('Pizzateig', 1, 'Packung'), z('Passierte Tomaten', 200, 'g'), z('Mozzarella', 2, 'Stück'),
+      z('Olivenöl', 1, 'EL'), geschmack('Basilikum'),
+    ],
+    zubereitung: `<ol>
+      <li>Ofen auf <b>250 °C</b> vorheizen.</li>
+      <li>Teig ausrollen, mit Tomaten bestreichen und Mozzarella belegen.</li>
+      <li><i>10–12 Minuten</i> backen, mit Basilikum servieren.</li></ol>`,
+  },
+  {
+    titel: 'Buddha Bowl mit Erdnusssoße', dauer: 30, favorit: false, farbe: '#c9e4a8', symbol: '🥙',
+    kategorien: ['Bowl', 'Vegan', 'Asiatisch'],
+    zutaten: [
+      z('Reis', 150, 'g'), z('Kichererbsen', 1, 'Dose'), z('Möhren', 2, 'Stück'),
+      z('Gurke', 1, 'Stück'), z('Erdnussbutter', 3, 'EL'), z('Sojasauce', 2, 'EL'),
+    ],
+    zubereitung: `<ul>
+      <li>Reis kochen, Kichererbsen im Ofen knusprig rösten.</li>
+      <li>Gemüse in Streifen schneiden.</li>
+      <li>Erdnussbutter mit Sojasauce und etwas Wasser zu einer <b>Soße</b> verrühren.</li></ul>`,
+  },
+  {
+    titel: 'Linsensuppe', dauer: 45, favorit: false, farbe: '#d6b48a', symbol: '🥣',
+    kategorien: ['Suppe & Eintopf', 'Deutsch', 'Vegan', 'Meal Prep'],
+    zutaten: [
+      z('Linsen', 250, 'g'), z('Möhren', 2, 'Stück'), z('Kartoffeln', 300, 'g'),
+      z('Zwiebeln', 1, 'Stück'), z('Gemüsebrühe', 1, 'l'), z('Essig', 1, 'EL'),
+    ],
+    zubereitung: `<ol>
+      <li>Gemüse würfeln und anschwitzen.</li>
+      <li>Linsen und Brühe dazu, <i>30 Minuten</i> köcheln.</li>
+      <li>Mit einem Schuss <b>Essig</b> abschmecken.</li></ol>`,
+  },
+  {
+    titel: 'Hähnchen-Fajitas', dauer: 30, favorit: true, farbe: '#f0b27a', symbol: '🌮',
+    kategorien: ['Mexikanisch', 'Fleisch'],
+    zutaten: [
+      z('Hähnchenbrust', 400, 'g'), z('Tortillas', 1, 'Packung'), z('Paprika', 2, 'Stück'),
+      z('Zwiebeln', 1, 'Stück'), z('Schmand', 200, 'g'), z('Chilipulver', 1, 'TL'),
+    ],
+    zubereitung: `<ol>
+      <li>Hähnchen und Gemüse in Streifen schneiden, mit Chili <b>scharf anbraten</b>.</li>
+      <li>Tortillas erwärmen, füllen und mit Schmand servieren.</li></ol>`,
+  },
+  {
+    titel: 'Pasta Pesto mit Tomaten', dauer: 15, favorit: false, farbe: null, symbol: null,
+    kategorien: ['Pasta', 'Italienisch', 'Vegetarisch', 'Schnell (unter 30 Min.)'],
+    zutaten: [
+      z('Spaghetti', 250, 'g'), z('Pesto', 1, 'Packung'), z('Tomaten', 250, 'g'), z('Parmesan', 50, 'g'),
+    ],
+    zubereitung: '<p>Nudeln kochen, mit Pesto und halbierten Tomaten mischen, <b>Parmesan</b> darüber.</p>',
+  },
+  {
+    titel: 'Thai-Curry mit Garnelen', dauer: 30, favorit: false, farbe: '#f5d67a', symbol: '🍤',
+    kategorien: ['Asiatisch', 'Fisch'],
+    zutaten: [
+      z('Garnelen', 250, 'g'), z('Kokosmilch', 1, 'Dose'), z('Currypaste', 2, 'EL'),
+      z('Paprika', 1, 'Stück'), z('Reis', 150, 'g'), z('Limette', 1, 'Stück'),
+    ],
+    zubereitung: `<ol>
+      <li>Currypaste anrösten, mit Kokosmilch ablöschen.</li>
+      <li>Paprika und Garnelen darin <i>5 Minuten</i> garen.</li>
+      <li>Mit Limettensaft abschmecken, mit Reis servieren.</li></ol>`,
+  },
+  {
+    titel: 'Käsespätzle', dauer: 35, favorit: true, farbe: '#f3e09a', symbol: '🧀',
+    kategorien: ['Deutsch', 'Vegetarisch', 'Pfannengericht'],
+    zutaten: [
+      z('Spätzle', 500, 'g'), z('Bergkäse', 200, 'g'), z('Zwiebeln', 2, 'Stück'), z('Butter', 30, 'g'),
+    ],
+    zubereitung: `<ol>
+      <li>Zwiebeln in Butter <b>goldbraun rösten</b>.</li>
+      <li>Spätzle und Käse schichtweise in eine Pfanne geben, schmelzen lassen.</li>
+      <li>Mit Röstzwiebeln servieren.</li></ol>`,
+  },
+  {
+    titel: 'Falafel-Wrap', dauer: 25, favorit: false, farbe: null, symbol: null,
+    kategorien: ['Orientalisch', 'Vegan', 'Schnell (unter 30 Min.)'],
+    zutaten: [
+      z('Falafel', 1, 'Packung'), z('Tortillas', 1, 'Packung'), z('Gurke', 1, 'Stück'),
+      z('Tomaten', 200, 'g'), z('Hummus', 150, 'g'),
+    ],
+    zubereitung: '<p>Falafel aufbacken, Wraps mit Hummus bestreichen, mit Gemüse und Falafel füllen und <b>einrollen</b>.</p>',
+  },
+  {
+    titel: 'Schokomousse', dauer: 20, favorit: false, farbe: '#b98a6e', symbol: '🍫',
+    kategorien: ['Dessert / Süßes'],
+    zutaten: [
+      z('Zartbitterschokolade', 150, 'g'), z('Eier', 3, 'Stück'), z('Sahne', 200, 'ml'), z('Zucker', 1, 'EL'),
+    ],
+    zubereitung: `<ol>
+      <li>Schokolade schmelzen, Sahne steif schlagen.</li>
+      <li>Eigelb mit Zucker aufschlagen, Schokolade unterrühren.</li>
+      <li>Sahne und Eischnee unterheben, <b>mind. 3 Stunden</b> kalt stellen.</li></ol>`,
+  },
+  {
+    titel: 'Gefüllte Paprika', dauer: 60, favorit: false, farbe: '#e88a7a', symbol: '🫑',
+    kategorien: ['Ofengericht / Auflauf', 'Fleisch', 'Für Gäste'],
+    zutaten: [
+      z('Paprika', 4, 'Stück'), z('Hackfleisch', 300, 'g'), z('Reis', 100, 'g'),
+      z('Passierte Tomaten', 500, 'g'), z('Feta', 100, 'g'),
+    ],
+    zubereitung: `<ol>
+      <li>Reis vorkochen, mit Hackfleisch und Feta mischen.</li>
+      <li>Paprika aushöhlen und füllen.</li>
+      <li>In Tomatensoße bei <b>180 °C</b> <i>40 Minuten</i> backen.</li></ol>`,
+  },
 ];
 
 // Malt ein einfaches Bild: farbiger Hintergrund mit großem Emoji
@@ -131,45 +264,52 @@ function bildMalen(farbe, symbol) {
   return leinwand.toDataURL('image/jpeg', 0.8);
 }
 
-// Legt die Beispielrezepte an und plant sie in diese und nächste Woche ein (nur an freien Tagen).
-// Gibt zurück, wie viele Rezepte neu angelegt wurden.
+// Welches Rezept an welchem Tag eingeplant wird: [Wochen ab heute, Tag (0 = Montag), Titel]
+const PLAN = [
+  [-1, 0, 'Linsensuppe'], [-1, 1, 'Käsespätzle'], [-1, 2, 'Thai-Curry mit Garnelen'],
+  [-1, 3, 'Buddha Bowl mit Erdnusssoße'], [-1, 4, 'Pizza Margherita'], [-1, 5, 'Hähnchen-Fajitas'],
+  [-1, 6, 'Schokomousse'],
+  [0, 0, 'Spaghetti Bolognese'], [0, 1, 'Gemüsecurry mit Reis'], [0, 2, 'Lachs mit Ofengemüse'],
+  [0, 3, 'Tomatensuppe'], [0, 4, 'Chili sin Carne'], [0, 5, 'Griechischer Salat'],
+  [1, 0, 'Shakshuka'], [1, 2, 'Ofenkartoffeln mit Kräuterquark'], [1, 4, 'Gefüllte Paprika'],
+];
+
+// Legt die Beispielrezepte an und plant sie in letzte, diese und nächste Woche ein
+// (nur an freien Tagen). Gibt zurück, wie viele Rezepte neu angelegt wurden.
 export async function beispieleLaden() {
   const [vorhanden, kategorien] = await Promise.all([alleRezepte(), alleKategorien()]);
   const kategorieId = (name) => kategorien.find((k) => gleicherName(k.name, name))?.id;
 
-  const rezepte = [];
+  const rezeptNachTitel = new Map(vorhanden.map((r) => [r.titel.toLocaleLowerCase('de'), r]));
   let neu = 0;
   for (const beispiel of BEISPIELE) {
-    const gleiches = vorhanden.find((r) => gleicherName(r.titel, beispiel.titel));
-    if (gleiches) {
-      rezepte.push(gleiches);
-      continue;
-    }
+    if (rezeptNachTitel.has(beispiel.titel.toLocaleLowerCase('de'))) continue;
     const rezept = {
       id: neueId(),
       titel: beispiel.titel,
       dauer: beispiel.dauer,
       favorit: beispiel.favorit,
-      bild: bildMalen(beispiel.farbe, beispiel.symbol),
+      bild: beispiel.farbe ? bildMalen(beispiel.farbe, beispiel.symbol) : null,
       kategorien: beispiel.kategorien.map(kategorieId).filter(Boolean),
       zutaten: beispiel.zutaten,
       zubereitung: beispiel.zubereitung.replace(/\n\s*/g, ''),
     };
     await speichern('rezepte', rezept);
-    rezepte.push(rezept);
+    rezeptNachTitel.set(rezept.titel.toLocaleLowerCase('de'), rezept);
     neu++;
   }
 
-  // Diese Woche Mo–Sa und nächste Woche Mo–Di einplanen; Sonntag bleibt zum Ausprobieren frei
-  const dieseWoche = wochenTage(new Date());
-  const naechsteWoche = wochenTage(plusTage(new Date(), 7));
-  const tage = [...dieseWoche.slice(0, 6), ...naechsteWoche.slice(0, 2)];
+  const montag = wochenStart(new Date());
+  const tage = PLAN.map(([woche, tag]) => plusTage(montag, woche * 7 + tag));
   const belegt = new Set(
-    (await planImZeitraum(schluessel(tage[0]), schluessel(tage[tage.length - 1]))).map((e) => e.datum)
+    (await planImZeitraum(schluessel(plusTage(montag, -7)), schluessel(plusTage(montag, 13)))).map((e) => e.datum)
   );
-  for (const [i, tag] of tage.entries()) {
-    if (!belegt.has(schluessel(tag))) {
-      await planEintragen(schluessel(tag), rezepte[i % rezepte.length].id);
+  for (const [i, [, , titel]] of PLAN.entries()) {
+    const datum = schluessel(tage[i]);
+    const rezept = rezeptNachTitel.get(titel.toLocaleLowerCase('de'));
+    if (rezept && !belegt.has(datum)) {
+      await planEintragen(datum, rezept.id);
+      belegt.add(datum);
     }
   }
 

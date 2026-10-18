@@ -165,3 +165,18 @@ export function planEntfernen(id) {
     tx.objectStore('plan').delete(id);
   });
 }
+
+// ---------- Zum Ausprobieren ----------
+
+// Löscht alle Rezepte und den Kalender und stellt die Startkategorien wieder her.
+export function allesZuruecksetzen() {
+  return transaktion(['rezepte', 'plan', 'kategorien'], 'readwrite', (tx) => {
+    tx.objectStore('rezepte').clear();
+    tx.objectStore('plan').clear();
+    const kategorien = tx.objectStore('kategorien');
+    kategorien.clear();
+    for (const name of START_KATEGORIEN) {
+      kategorien.add({ id: neueId(), name });
+    }
+  });
+}

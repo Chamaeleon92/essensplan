@@ -1652,3 +1652,27 @@ body:has(dialog[open]) {
   height: 14px;
   border-radius: 2px;
 }
+
+/* ---------- Zum Ausprobieren (Kategorien-Seite) ---------- */
+.ausprobieren {
+  margin-top: 32px;
+  padding: 18px;
+  border: 2.5px dashed var(--gestrichelt);
+  border-radius: var(--radius);
+}
+
+.ausprobieren h2 {
+  margin: 0 0 6px;
+  font-size: 20px;
+}
+
+.ausprobieren p {
+  margin: 0 0 14px;
+  font-size: 14px;
+}
+
+.ausprobieren-knoepfe {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
