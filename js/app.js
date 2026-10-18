@@ -6,6 +6,7 @@ import * as rezepte from './ansichten/rezepte.js';
 import * as rezeptAnsicht from './ansichten/rezept-ansicht.js';
 import * as rezeptBearbeiten from './ansichten/rezept-bearbeiten.js';
 import * as kategorien from './ansichten/kategorien.js';
+import { beispieleLaden } from './beispieldaten.js';
 
 const inhalt = document.getElementById('inhalt');
 
@@ -29,6 +30,13 @@ function ansichtFinden(teile) {
 }
 
 async function ansichtWechseln() {
+  // Sonderadresse zum Ausprobieren: legt Beispielrezepte an und springt in den Kalender
+  if (location.hash === '#/beispieldaten') {
+    await beispieleLaden();
+    location.replace('#/kalender');
+    return;
+  }
+
   // Aus "#/rezept/123/bearbeiten" wird ["rezept", "123", "bearbeiten"].
   const teile = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
   const ansicht = ansichtFinden(teile);

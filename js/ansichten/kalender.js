@@ -1,6 +1,8 @@
 // Kalender mit Wochen- und Monatsansicht (Startansicht der App).
 
-import { alleRezepte, alleKategorien, planImZeitraum, planEintragen } from '../db.js';
+import {
+  alleRezepte, alleKategorien, planImZeitraum, planEintragen, planVerschieben, planEntfernen,
+} from '../db.js';
 import {
   schluessel, ausSchluessel, plusTage, wochenTage, monatsTage, gleicherTag, kalenderwoche,
   wochentagKurz, datumKurz, datumLang, monatText, wochenText,
@@ -9,6 +11,7 @@ import { sicher } from '../hilfen.js';
 import { kopfSetzen } from '../kopf.js';
 import { kachel } from '../kachel.js';
 import { rezeptlisteAnzeigen, neuerFilter } from '../rezeptliste.js';
+import { ziehenAktivieren } from '../ziehen.js';
 
 const WOCHENTAGE = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 
@@ -28,6 +31,7 @@ export async function anzeigen(ziel) {
   container = document.createElement('div');
   container.className = 'kalender';
   container.addEventListener('click', geklickt);
+  ziehenAktivieren(container, abgelegt);
   ziel.append(container);
   await zeichnen();
 }
@@ -119,7 +123,8 @@ function wocheHtml(tage, proTag, kategorienNachId) {
       ${tage.map((tag) => {
         const geplant = proTag.get(schluessel(tag)) ?? [];
         return `
-          <section class="tag ${gleicherTag(tag, heute) ? 'heute' : ''}" aria-label="${datumLang(tag)}">
+          <section class="tag ${gleicherTag(tag, heute) ? 'heute' : ''}" data-tag="${schluessel(tag)}"
+                   aria-label="${datumLang(tag)}">
             <div class="tag-kopf">
               <span class="tag-name">${wochentagKurz(tag)}</span>
               <span class="tag-datum">${datumKurz(tag)}</span>
@@ -153,7 +158,7 @@ function monatHtml(tage, proTag) {
           gleicherTag(tag, heute) ? 'heute' : '',
         ].join(' ');
         return `
-          <div class="${klassen}">
+          <div class="${klassen}" data-tag="${schluessel(tag)}">
             <span class="monat-zahl">${tag.getDate()}</span>
             ${geplant.map(({ eintrag, rezept }) => `
               <div class="plan-eintrag" data-eintrag="${eintrag.id}">
@@ -204,6 +209,16 @@ async function geklickt(ereignis) {
     // Klick auf ein geplantes Gericht öffnet das Rezept
     location.hash = `#/rezept/${ziel.dataset.id}`;
   }
+}
+
+// Ein Gericht wurde per Drag & Drop auf einen Tag oder in den Papierkorb gezogen
+async function abgelegt(eintragId, ziel) {
+  if (ziel.art === 'papierkorb') {
+    await planEntfernen(eintragId);
+  } else {
+    await planVerschieben(eintragId, ziel.datum);
+  }
+  await zeichnen();
 }
 
 // Öffnet das Overlay mit allen Rezepten, um eins für den Tag auszuwählen.

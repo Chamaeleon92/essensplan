@@ -148,3 +148,17 @@ export function planImZeitraum(von, bis) {
 export function planEintragen(datum, rezeptId) {
   return speichern('plan', { id: neueId(), datum, rezeptId });
 }
+
+export function planVerschieben(id, datum) {
+  return transaktion('plan', 'readwrite', async (tx) => {
+    const tabelle = tx.objectStore('plan');
+    const eintrag = await warten(tabelle.get(id));
+    if (eintrag) tabelle.put({ ...eintrag, datum });
+  });
+}
+
+export function planEntfernen(id) {
+  return transaktion('plan', 'readwrite', (tx) => {
+    tx.objectStore('plan').delete(id);
+  });
+}

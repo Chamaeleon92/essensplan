@@ -988,3 +988,98 @@ select.eingabe {
 body:has(dialog[open]) {
   overflow: hidden;
 }
+
+/* ---------- Drag & Drop ---------- */
+.plan-eintrag {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.plan-eintrag img {
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+
+.wird-gezogen {
+  opacity: 0.3;
+}
+
+.zieh-geist {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  pointer-events: none;
+  border-radius: var(--radius);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
+  opacity: 0.95;
+  will-change: transform;
+}
+
+.zieh-geist > * {
+  transform: scale(1.04) rotate(1.5deg);
+  transition: transform 0.15s, opacity 0.15s;
+}
+
+/* Über dem Papierkorb schrumpft die Kachel, damit der Papierkorb sichtbar bleibt */
+.zieh-geist.ueber-papierkorb > * {
+  transform: scale(0.4) rotate(-6deg);
+  opacity: 0.7;
+}
+
+body.zieht,
+body.zieht * {
+  cursor: grabbing !important;
+}
+
+/* Tag, über dem gerade ein Gericht schwebt */
+.tag.ziel-markiert .tag-inhalt,
+.monat-tag.ziel-markiert {
+  outline: 3px dashed var(--akzent);
+  outline-offset: 2px;
+  border-radius: var(--radius);
+}
+
+.tag.ziel-markiert .tag-kopf {
+  color: var(--akzent);
+}
+
+.papierkorb {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: calc(10px + env(safe-area-inset-bottom));
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  max-width: 600px;
+  height: 76px;
+  margin: 0 auto;
+  border: 2px dashed var(--gefahr);
+  border-radius: var(--radius);
+  background: var(--flaeche);
+  color: var(--gefahr);
+  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  animation: papierkorb-einblenden 0.15s ease-out;
+  transition: transform 0.1s, background 0.1s;
+}
+
+.papierkorb span {
+  font-size: 1.6rem;
+}
+
+.papierkorb.aktiv {
+  border-style: solid;
+  background: var(--gefahr);
+  color: #fff;
+  transform: scale(1.05);
+}
+
+@keyframes papierkorb-einblenden {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

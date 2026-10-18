@@ -20,6 +20,7 @@ export async function anzeigen(container) {
       <div class="hinweis">
         <p>Noch keine Rezepte vorhanden.</p>
         <a class="knopf knopf-haupt" href="#/rezept/neu">＋ Erstes Rezept anlegen</a>
+        <p><a class="knopf" href="#/beispieldaten">Beispielrezepte laden</a></p>
       </div>
     `,
   });
