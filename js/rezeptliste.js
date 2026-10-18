@@ -4,6 +4,7 @@
 import { alleRezepte, alleKategorien, alleZutatenNamen } from './db.js';
 import { sicher, gleicherName } from './hilfen.js';
 import { kachel } from './kachel.js';
+import { symbol } from './symbole.js';
 
 // Ein leerer Filterzustand. Wer die Filter zwischen zwei Besuchen behalten will,
 // hebt sich das Objekt auf und gibt es beim nächsten Mal wieder mit.
@@ -34,7 +35,8 @@ export async function rezeptlisteAnzeigen(container, { filter, beiAuswahl, leerT
 
   container.innerHTML = `
     <div class="suche-zeile">
-      <input class="eingabe" type="search" placeholder="🔍 Rezept suchen"
+      ${symbol.lupe({ groesse: 20 })}
+      <input class="eingabe" type="search" placeholder="Rezept suchen …"
              aria-label="Rezept suchen" value="${sicher(filter.suche)}">
     </div>
     <details class="filter" ${filter.offen ? 'open' : ''}>
@@ -62,7 +64,7 @@ export async function rezeptlisteAnzeigen(container, { filter, beiAuswahl, leerT
     filterInhalt.innerHTML = `
       <div class="filter-gruppe">
         <button type="button" class="chip chip-waehlbar" data-favoriten
-                aria-pressed="${filter.nurFavoriten}">⭐ Nur Favoriten</button>
+                aria-pressed="${filter.nurFavoriten}">${symbol.stern({ groesse: 16, fuellung: 'currentColor' })} Nur Favoriten</button>
       </div>
 
       <h3 class="filter-titel">Kategorien</h3>
@@ -82,7 +84,7 @@ export async function rezeptlisteAnzeigen(container, { filter, beiAuswahl, leerT
       <div class="chips">
         ${filter.zutaten.map((name, i) => `
           <button type="button" class="chip chip-waehlbar" aria-pressed="true" data-zutat-entfernen="${i}"
-                  aria-label="${sicher(name)} aus dem Filter entfernen">${sicher(name)} ✕</button>
+                  aria-label="${sicher(name)} aus dem Filter entfernen">${sicher(name)} ${symbol.schliessen({ groesse: 14 })}</button>
         `).join('')}
       </div>
 

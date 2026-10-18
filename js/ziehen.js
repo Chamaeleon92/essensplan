@@ -6,6 +6,8 @@
 //
 // Beim Ziehen erscheint unten ein Papierkorb. Am oberen und unteren Rand scrollt die Seite mit.
 
+import { symbol } from './symbole.js';
+
 const HALTEN_MS = 350;      // so lange muss der Finger liegen bleiben
 const TOLERANZ_PX = 8;      // so weit darf er sich dabei bewegen
 const RAND_PX = 90;         // Abstand zum Rand, ab dem automatisch gescrollt wird
@@ -85,7 +87,7 @@ export function ziehenAktivieren(bereich, beiAblegen) {
 
     const papierkorb = document.createElement('div');
     papierkorb.className = 'papierkorb';
-    papierkorb.innerHTML = '<span aria-hidden="true">🗑️</span> Hierher ziehen zum Entfernen';
+    papierkorb.innerHTML = `${symbol.muell({ groesse: 24 })} Hierher ziehen zum Entfernen`;
     document.body.append(papierkorb);
     document.body.classList.add('zieht');
 
@@ -134,10 +136,14 @@ export function ziehenAktivieren(bereich, beiAblegen) {
   // Scrollt die Seite, solange der Finger nah am oberen oder unteren Rand ist
   function autoScrollen() {
     if (!zug) return;
-    const oben = RAND_PX;
+    // Oben kleben Kopfzeile und Wochenstreifen – gescrollt wird knapp darunter
+    const deckel = Math.max(0, ...[...document.querySelectorAll('.kopfzeile, .wochenstreifen')]
+      .map((element) => element.getBoundingClientRect().bottom)
+      .filter((kante) => kante < window.innerHeight / 2));
+    const oben = deckel + RAND_PX;
     const unten = zug.papierkorb.getBoundingClientRect().top - 30;
     let schritt = 0;
-    if (zug.y < oben) {
+    if (zug.y > deckel && zug.y < oben) {
       schritt = -MAX_SCROLL_PX * Math.min(1, (oben - zug.y) / RAND_PX);
     } else if (zug.y > unten - RAND_PX && zug.y < unten + 30) {
       schritt = MAX_SCROLL_PX * Math.min(1, (zug.y - (unten - RAND_PX)) / RAND_PX);

@@ -4,7 +4,7 @@
 // die neueste Version geladen (und gleichzeitig gespeichert). Nur ohne Internet
 // kommt die zuletzt gespeicherte Version zum Einsatz. So sieht man Änderungen sofort.
 
-const SPEICHER = 'essensplan-v1';
+const SPEICHER = 'essensplan-v2';
 
 self.addEventListener('install', () => self.skipWaiting());
 

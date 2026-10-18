@@ -1,29 +1,90 @@
-/* ---------- Farben und Grundwerte ---------- */
-:root {
-  --hintergrund: #f6f4ef;
-  --flaeche: #ffffff;
-  --text: #1f2421;
-  --text-leise: #66706a;
-  --akzent: #2f7d5b;
-  --akzent-text: #ffffff;
-  --gefahr: #c0392b;
-  --rand: #e2ded5;
-  --radius: 12px;
-  --navigation-hoehe: 64px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+/* =====================================================================
+   Essensplan – Design "Frisch & verspielt"
+   Hell und Dunkel richten sich automatisch nach der Einstellung des Geräts.
+   ===================================================================== */
+
+/* ---------- Schriften (liegen in der App, funktionieren also offline) ---------- */
+@font-face {
+  font-family: "Fredoka";
+  src: url("../schriften/fredoka.woff2") format("woff2");
+  font-weight: 300 700;
+  font-display: swap;
 }
 
-/* Dunkler Modus, wenn das Gerät darauf eingestellt ist */
+@font-face {
+  font-family: "Nunito";
+  src: url("../schriften/nunito.woff2") format("woff2");
+  font-weight: 200 1000;
+  font-display: swap;
+}
+
+/* ---------- Farben und Grundwerte ---------- */
+:root {
+  --grund: #FFF8F0;
+  --flaeche: #FFFFFF;
+  --flaeche-weich: #F6EEE4;
+  --text: #2B2540;
+  --text-leise: #6E6788;
+  --akzent: #5B3FD9;
+  --akzent-tief: #3F2AA8;
+  --akzent-weich: #EEE7FF;
+  --akzent-text: #FFFFFF;
+  --koralle: #FF7A59;
+  --koralle-tief: #D9573A;
+  --gold: #F5B301;
+  --gefahr: #D93F45;
+  --schatten: #EFE4D6;          /* der "3D"-Schatten unter Karten */
+  --rand: #EADFD1;
+  --gestrichelt: #D9CBEF;
+  --navigation: #2B2540;
+  --navigation-text: #B9B2D3;
+
+  /* Pastellfarben für Bilder-Platzhalter: Grund / Symbol */
+  --pastell-0: #FFD9C2; --pastell-0-symbol: #D9573A;
+  --pastell-1: #CDEFD9; --pastell-1-symbol: #1F8F68;
+  --pastell-2: #E3DAFF; --pastell-2-symbol: #5B3FD9;
+  --pastell-3: #FFF0B3; --pastell-3-symbol: #A87E00;
+  --pastell-4: #FFE1DC; --pastell-4-symbol: #C9443A;
+  --pastell-5: #D6ECFF; --pastell-5-symbol: #2F72BD;
+
+  --radius-klein: 14px;
+  --radius: 20px;
+  --radius-gross: 26px;
+  --schrift: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --schrift-titel: "Fredoka", "Nunito", sans-serif;
+  --navigation-hoehe: 68px;
+  --feder: cubic-bezier(0.34, 1.56, 0.64, 1); /* leicht "federnde" Bewegung */
+  color-scheme: light;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
-    --hintergrund: #161a18;
-    --flaeche: #222826;
-    --text: #eef1ef;
-    --text-leise: #9aa59f;
-    --akzent: #4fb487;
-    --akzent-text: #0d1f17;
-    --gefahr: #ff6b5b;
-    --rand: #343c39;
+    --grund: #17141F;
+    --flaeche: #231F2E;
+    --flaeche-weich: #2B2638;
+    --text: #F3F0FA;
+    --text-leise: #A8A1BE;
+    --akzent: #8B73FF;
+    --akzent-tief: #5B3FD9;
+    --akzent-weich: #2E2745;
+    --akzent-text: #FFFFFF;
+    --koralle: #FF7A59;
+    --koralle-tief: #B8462C;
+    --gold: #FFC53D;
+    --gefahr: #FF6B70;
+    --schatten: #0D0B12;
+    --rand: #342D44;
+    --gestrichelt: #3D3552;
+    --navigation: #2E2745;
+    --navigation-text: #A8A1BE;
+
+    --pastell-0: #4A3226; --pastell-0-symbol: #FFB599;
+    --pastell-1: #1F3B2E; --pastell-1-symbol: #7FD8B0;
+    --pastell-2: #2E2745; --pastell-2-symbol: #B7A6FF;
+    --pastell-3: #3D3517; --pastell-3-symbol: #F2D36B;
+    --pastell-4: #45262A; --pastell-4-symbol: #FF9E8F;
+    --pastell-5: #1E3348; --pastell-5-symbol: #8CC4FF;
+    color-scheme: dark;
   }
 }
 
@@ -33,215 +94,161 @@
 
 body {
   margin: 0;
-  background: var(--hintergrund);
+  background: var(--grund);
   color: var(--text);
+  font-family: var(--schrift);
   font-size: 16px;
-  line-height: 1.5;
+  font-weight: 500;
+  line-height: 1.45;
   -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: var(--schrift-titel);
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.symbol {
+  flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* ---------- Kopfzeile ---------- */
 .kopfzeile {
   position: sticky;
   top: 0;
-  z-index: 10;
-  padding: calc(12px + env(safe-area-inset-top)) 16px 12px;
-  background: var(--hintergrund);
-  border-bottom: 1px solid var(--rand);
-}
-
-.kopfzeile h1 {
-  margin: 0;
-  font-size: 1.4rem;
-}
-
-/* ---------- Inhalt ---------- */
-main {
-  max-width: 900px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 760px;
   margin: 0 auto;
-  padding: 16px 16px calc(var(--navigation-hoehe) + 24px + env(safe-area-inset-bottom));
+  padding: calc(14px + env(safe-area-inset-top)) 20px 12px;
+  background: var(--grund);
 }
 
-.hinweis {
-  color: var(--text-leise);
-  text-align: center;
-  padding: 48px 16px;
-}
-
-/* ---------- Untere Navigation ---------- */
-.navigation {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 10;
-  display: flex;
-  height: calc(var(--navigation-hoehe) + env(safe-area-inset-bottom));
-  padding-bottom: env(safe-area-inset-bottom);
-  background: var(--flaeche);
-  border-top: 1px solid var(--rand);
-}
-
-.navigation a {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  color: var(--text-leise);
-  text-decoration: none;
-  font-size: 0.75rem;
-}
-
-.navigation a .symbol {
-  font-size: 1.4rem;
-  line-height: 1;
-}
-
-.navigation a.aktiv {
-  color: var(--akzent);
-  font-weight: 600;
-}
-
-/* ---------- Knöpfe und Eingabefelder ---------- */
-button,
-input {
-  font: inherit;
-  color: inherit;
-}
-
-.knopf {
-  min-height: 44px;
-  padding: 0 16px;
-  border: 1px solid var(--rand);
-  border-radius: var(--radius);
-  background: var(--flaeche);
-  cursor: pointer;
-}
-
-.knopf-haupt {
-  background: var(--akzent);
-  border-color: var(--akzent);
-  color: var(--akzent-text);
-  font-weight: 600;
-}
-
-.knopf-symbol {
-  min-width: 44px;
-  min-height: 44px;
-  border: none;
-  border-radius: var(--radius);
-  background: transparent;
-  font-size: 1.1rem;
-  cursor: pointer;
-}
-
-.knopf-symbol:hover {
-  background: var(--hintergrund);
-}
-
-.eingabe {
-  width: 100%;
-  min-height: 44px;
-  padding: 0 12px;
-  border: 1px solid var(--rand);
-  border-radius: var(--radius);
-  background: var(--flaeche);
-}
-
-.eingabe:focus,
-.knopf:focus-visible,
-.knopf-symbol:focus-visible {
-  outline: 2px solid var(--akzent);
-  outline-offset: 1px;
-}
-
-/* ---------- Kategorien ---------- */
-.formular-zeile {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.fehler {
-  margin: -8px 0 16px;
-  color: var(--gefahr);
-  font-size: 0.9rem;
-}
-
-.liste {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  background: var(--flaeche);
-  border: 1px solid var(--rand);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-
-.liste li {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  min-height: 52px;
-  padding: 4px 4px 4px 16px;
-  border-bottom: 1px solid var(--rand);
-}
-
-.liste li:last-child {
-  border-bottom: none;
-}
-
-.liste .name {
-  flex: 1;
-}
-
-.liste .eingabe {
-  flex: 1;
-}
-
-.anzahl {
-  margin: 0 0 8px;
-  color: var(--text-leise);
-  font-size: 0.9rem;
-}
-
-/* ---------- Kopfzeile mit Zurück-Knopf und Aktionen ---------- */
-.kopfzeile {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.kopfzeile h1 {
+.kopf-titel {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#untertitel {
+  color: var(--text-leise);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.kopfzeile h1 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-#zurueck {
-  margin-left: -12px;
-  font-size: 2rem;
-  line-height: 1;
-}
-
 #kopf-aktionen {
   display: flex;
-  gap: 4px;
-  margin-right: -8px;
+  gap: 8px;
 }
 
-#kopf-aktionen .knopf-symbol {
-  font-size: 1.4rem;
+.kopf-knopf {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 16px;
+  background: var(--flaeche);
+  color: var(--text);
+  box-shadow: 0 2px 0 var(--schatten);
+  transition: transform 0.12s;
 }
 
-/* ---------- Allgemeines ---------- */
+.kopf-knopf[hidden] {
+  display: none;
+}
+
+.kopf-knopf.hervorgehoben {
+  background: var(--akzent-weich);
+  color: var(--akzent);
+}
+
+.kopf-knopf:active {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+
+/* ---------- Inhalt ---------- */
+main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 4px 20px calc(var(--navigation-hoehe) + 48px + env(safe-area-inset-bottom));
+}
+
+/* Jede Ansicht blendet beim Wechseln sanft ein */
+.ansicht {
+  animation: einblenden 0.28s ease-out;
+}
+
+@keyframes einblenden {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+.hinweis {
+  padding: 40px 16px;
+  color: var(--text-leise);
+  text-align: center;
+}
+
+.hinweis p {
+  margin: 0 0 16px;
+}
+
 .leise {
   color: var(--text-leise);
-  font-weight: normal;
+  font-weight: 500;
+}
+
+.anzahl {
+  margin: 0 0 10px;
+  color: var(--text-leise);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.fehler {
+  margin: -6px 0 14px;
+  color: var(--gefahr);
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .unsichtbar {
@@ -252,10 +259,118 @@ input {
   pointer-events: none;
 }
 
-.hinweis .knopf {
+/* ---------- Schwebende Navigation unten ---------- */
+.navigation {
+  position: fixed;
+  left: 50%;
+  bottom: calc(14px + env(safe-area-inset-bottom));
+  z-index: 30;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: calc(100% - 40px);
+  max-width: 480px;
+  height: var(--navigation-hoehe);
+  padding: 0 8px;
+  border-radius: var(--radius-gross);
+  background: var(--navigation);
+  box-shadow: 0 10px 30px rgba(20, 14, 40, 0.25);
+  transform: translateX(-50%);
+}
+
+.navigation a {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  color: var(--navigation-text);
+  font-size: 11px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.nav-symbol {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 32px;
+  border-radius: 12px;
+  transition: background 0.2s, transform 0.25s var(--feder);
+}
+
+.navigation a.aktiv {
+  color: #FFFFFF;
+}
+
+.navigation a.aktiv .nav-symbol {
+  background: var(--koralle);
+  transform: scale(1.05);
+}
+
+/* ---------- Knöpfe ---------- */
+.knopf {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 16px;
+  background: var(--flaeche);
+  color: var(--text);
+  font-weight: 800;
   text-decoration: none;
+  box-shadow: 0 3px 0 var(--schatten);
+  transition: transform 0.12s;
+}
+
+.knopf:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: none;
+}
+
+.knopf:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.knopf-haupt {
+  background: var(--akzent);
+  color: var(--akzent-text);
+  box-shadow: 0 4px 0 var(--akzent-tief);
+}
+
+.knopf-klein {
+  min-height: 40px;
+  padding: 0 14px;
+  font-size: 14px;
+}
+
+.knopf-gefahr {
+  width: 100%;
+  background: transparent;
+  color: var(--gefahr);
+  box-shadow: inset 0 0 0 2px var(--gefahr);
+}
+
+.knopf-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border: none;
+  border-radius: var(--radius-klein);
+  background: transparent;
+  color: var(--text-leise);
+}
+
+.knopf-symbol:hover {
+  background: var(--flaeche-weich);
+  color: var(--text);
 }
 
 .knopf-text {
@@ -264,28 +379,57 @@ input {
   border: none;
   background: none;
   color: var(--akzent);
-  font: inherit;
-  cursor: pointer;
+  font-weight: 800;
 }
 
-.knopf-gefahr {
+.knopf:focus-visible,
+.knopf-symbol:focus-visible,
+.kopf-knopf:focus-visible,
+.knopf-text:focus-visible,
+.navigation a:focus-visible {
+  outline: 3px solid var(--akzent);
+  outline-offset: 2px;
+}
+
+/* ---------- Eingabefelder ---------- */
+.eingabe {
   width: 100%;
-  color: var(--gefahr);
-  border-color: var(--gefahr);
-  background: transparent;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 2px solid var(--rand);
+  border-radius: var(--radius-klein);
+  background: var(--flaeche);
+  font-weight: 600;
+  transition: border-color 0.15s;
+}
+
+.eingabe::placeholder {
+  color: var(--text-leise);
+  font-weight: 500;
+}
+
+.eingabe:focus {
+  outline: none;
+  border-color: var(--akzent);
 }
 
 select.eingabe {
   appearance: none;
-  padding-right: 28px;
+  padding-right: 32px;
   background-image: linear-gradient(45deg, transparent 50%, var(--text-leise) 50%),
     linear-gradient(135deg, var(--text-leise) 50%, transparent 50%);
-  background-position: calc(100% - 16px) 50%, calc(100% - 11px) 50%;
-  background-size: 5px 5px;
+  background-position: calc(100% - 18px) 50%, calc(100% - 12px) 50%;
+  background-size: 6px 6px;
   background-repeat: no-repeat;
 }
 
-/* ---------- Chips (kleine Etiketten) ---------- */
+.formular-zeile {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+/* ---------- Chips ---------- */
 .chips {
   display: flex;
   flex-wrap: wrap;
@@ -295,48 +439,793 @@ select.eingabe {
 .chip {
   display: inline-flex;
   align-items: center;
+  gap: 4px;
   padding: 2px 10px;
-  border: 1px solid var(--rand);
+  border: none;
   border-radius: 999px;
-  background: var(--hintergrund);
-  font-size: 0.85rem;
+  background: var(--flaeche-weich);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
   white-space: nowrap;
 }
 
 .chip-waehlbar {
-  min-height: 36px;
+  min-height: 38px;
   padding: 0 14px;
-  cursor: pointer;
+  background: var(--flaeche);
+  box-shadow: 0 2px 0 var(--schatten);
+  transition: transform 0.2s var(--feder), background 0.15s;
 }
 
 .chip-waehlbar[aria-pressed="true"] {
   background: var(--akzent);
-  border-color: var(--akzent);
   color: var(--akzent-text);
+  box-shadow: 0 2px 0 var(--akzent-tief);
+  transform: scale(1.04);
 }
 
 .chips-klein .chip {
   padding: 0 8px;
-  font-size: 0.75rem;
+  font-size: 12px;
 }
 
-/* ---------- Suche und Filter ---------- */
+/* ---------- Kalender: Leiste ---------- */
+.kalender-leiste {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.umschalter {
+  display: inline-flex;
+  padding: 4px;
+  border-radius: 16px;
+  background: var(--flaeche);
+  box-shadow: 0 2px 0 var(--schatten);
+}
+
+.umschalter button {
+  min-width: 76px;
+  min-height: 36px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text-leise);
+  font-weight: 800;
+  font-size: 14px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.umschalter button[aria-pressed="true"] {
+  background: var(--akzent);
+  color: var(--akzent-text);
+}
+
+.zeitraum {
+  color: var(--text-leise);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: right;
+}
+
+/* ---------- Kalender: Wochenstreifen ---------- */
+/* Bleibt beim Scrollen unter der Kopfzeile sichtbar – praktisch auch als Ablageziel beim Ziehen */
+.wochenstreifen {
+  position: sticky;
+  top: var(--kopf-hoehe, 80px);
+  z-index: 15;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0 -20px 10px;
+  padding: 2px 20px 10px;
+  background: var(--grund);
+}
+
+.streifen-tag {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  height: 66px;
+  padding: 0;
+  border: none;
+  border-radius: 18px;
+  background: var(--flaeche);
+  color: var(--text);
+  box-shadow: 0 2px 0 var(--schatten);
+  transition: transform 0.2s var(--feder);
+}
+
+.streifen-tag:active {
+  transform: scale(0.94);
+}
+
+.streifen-name {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.streifen-zahl {
+  font-family: var(--schrift-titel);
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.streifen-punkt {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.streifen-tag.geplant .streifen-punkt {
+  background: var(--koralle);
+}
+
+.streifen-tag.heute {
+  background: var(--akzent);
+  color: var(--akzent-text);
+  box-shadow: 0 3px 0 var(--akzent-tief);
+}
+
+.streifen-tag.heute.geplant .streifen-punkt {
+  background: #FFFFFF;
+}
+
+/* ---------- Kalender: Fortschritt ---------- */
+.fortschritt {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border-radius: 22px;
+  background: var(--flaeche);
+  box-shadow: 0 3px 0 var(--schatten);
+}
+
+.ring {
+  --farbe: var(--akzent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: conic-gradient(var(--farbe) calc(var(--anteil) * 360deg), var(--akzent-weich) 0);
+}
+
+.ring span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--flaeche);
+  font-family: var(--schrift-titel);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.fortschritt-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.fortschritt-text strong {
+  font-weight: 800;
+}
+
+.fortschritt-text span {
+  color: var(--text-leise);
+  font-size: 14px;
+}
+
+.fortschritt.voll .ring {
+  --farbe: var(--koralle);
+  animation: wackeln 0.6s var(--feder);
+}
+
+.fortschritt.voll .ring span {
+  color: var(--koralle);
+}
+
+@keyframes wackeln {
+  0% { transform: scale(0.8) rotate(-10deg); }
+  60% { transform: scale(1.1) rotate(6deg); }
+  100% { transform: none; }
+}
+
+/* ---------- Kalender: Tage ---------- */
+.woche {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tag {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  scroll-margin: calc(var(--kopf-hoehe, 80px) + 100px);
+  border-radius: 24px;
+}
+
+.plan-karte {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 22px;
+  background: var(--flaeche);
+  color: var(--text);
+  text-align: left;
+  box-shadow: 0 3px 0 var(--schatten);
+  transition: transform 0.12s;
+}
+
+.plan-karte:active {
+  transform: translateY(3px);
+  box-shadow: none;
+}
+
+.plan-bild {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--bild-grund);
+  color: var(--bild-symbol);
+}
+
+.plan-bild img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.plan-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.plan-tag {
+  color: var(--text-leise);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.plan-titel {
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.plan-info {
+  color: var(--text-leise);
+  font-size: 13px;
+}
+
+.plan-stern {
+  display: flex;
+  margin-right: 4px;
+  color: var(--gold);
+}
+
+/* Heute: die große Korallen-Karte */
+.plan-karte.heute {
+  padding: 14px;
+  border-radius: var(--radius-gross);
+  background: var(--koralle);
+  color: #FFFFFF;
+  box-shadow: 0 4px 0 var(--koralle-tief);
+}
+
+.plan-karte.heute .plan-bild {
+  width: 96px;
+  height: 96px;
+  border-radius: 20px;
+}
+
+.plan-karte.heute .plan-tag {
+  color: #FFFFFF;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.95;
+}
+
+.plan-karte.heute .plan-titel {
+  font-family: var(--schrift-titel);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.plan-karte.heute .plan-info {
+  color: #FFFFFF;
+  opacity: 0.9;
+}
+
+.plan-karte.heute .plan-stern {
+  color: #FFFFFF;
+}
+
+/* Leerer Tag */
+.leerer-tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 80px;
+  padding: 10px 10px 10px 16px;
+  border: 2.5px dashed var(--gestrichelt);
+  border-radius: 22px;
+}
+
+.leerer-tag.heute {
+  border-color: var(--koralle);
+}
+
+.leer-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.leer-hinweis {
+  color: var(--akzent);
+  font-weight: 800;
+  font-size: 15px;
+}
+
+.knopf-wuerfel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 44px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 14px;
+  background: var(--akzent-weich);
+  color: var(--akzent);
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.knopf-wuerfel.rollt .symbol {
+  animation: rollen 0.45s ease-in-out;
+}
+
+@keyframes rollen {
+  0% { transform: rotate(0) scale(1); }
+  50% { transform: rotate(200deg) scale(1.3); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+.knopf-plus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 14px;
+  background: var(--akzent);
+  color: var(--akzent-text);
+  box-shadow: 0 3px 0 var(--akzent-tief);
+}
+
+.knopf-plus:active,
+.knopf-wuerfel:active {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+
+/* Gerade eingeplant: hereinploppen */
+.plan-eintrag.neu {
+  animation: ploppen 0.5s var(--feder);
+}
+
+@keyframes ploppen {
+  0% { opacity: 0; transform: scale(0.6); }
+  100% { opacity: 1; transform: none; }
+}
+
+/* ---------- Kalender: Monatsansicht ---------- */
+.monat {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.monat-wochentag {
+  padding: 4px 0;
+  color: var(--text-leise);
+  font-size: 12px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.monat-tag {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  min-height: 82px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--flaeche);
+  box-shadow: 0 2px 0 var(--schatten);
+}
+
+.monat-tag.anderer-monat {
+  opacity: 0.4;
+}
+
+.monat-zahl {
+  font-family: var(--schrift-titel);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.monat-tag.heute {
+  background: var(--akzent);
+  color: var(--akzent-text);
+  box-shadow: 0 3px 0 var(--akzent-tief);
+}
+
+.monat-eintrag {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  width: 100%;
+  padding: 3px 4px;
+  border: none;
+  border-radius: 8px;
+  background: var(--bild-grund);
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: left;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.monat-plus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--gestrichelt);
+}
+
+.monat-tag.heute .monat-plus {
+  color: var(--akzent-text);
+}
+
+@media (min-width: 700px) {
+  .monat-tag {
+    min-height: 110px;
+    padding: 6px;
+  }
+
+  .monat-eintrag {
+    font-size: 13px;
+    padding: 4px 6px;
+  }
+}
+
+/* ---------- Pastellfarben ---------- */
+.farbe-0 { --bild-grund: var(--pastell-0); --bild-symbol: var(--pastell-0-symbol); }
+.farbe-1 { --bild-grund: var(--pastell-1); --bild-symbol: var(--pastell-1-symbol); }
+.farbe-2 { --bild-grund: var(--pastell-2); --bild-symbol: var(--pastell-2-symbol); }
+.farbe-3 { --bild-grund: var(--pastell-3); --bild-symbol: var(--pastell-3-symbol); }
+.farbe-4 { --bild-grund: var(--pastell-4); --bild-symbol: var(--pastell-4-symbol); }
+.farbe-5 { --bild-grund: var(--pastell-5); --bild-symbol: var(--pastell-5-symbol); }
+
+/* ---------- Drag & Drop ---------- */
+.plan-eintrag {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.plan-eintrag img {
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+
+.wird-gezogen {
+  opacity: 0.25;
+}
+
+.zieh-geist {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.zieh-geist > * {
+  box-shadow: 0 18px 40px rgba(20, 14, 40, 0.3) !important;
+  transform: scale(1.05) rotate(2deg);
+  transition: transform 0.18s var(--feder), opacity 0.15s;
+}
+
+.zieh-geist.ueber-papierkorb > * {
+  transform: scale(0.4) rotate(-8deg);
+  opacity: 0.7;
+}
+
+body.zieht,
+body.zieht * {
+  cursor: grabbing !important;
+}
+
+.tag.ziel-markiert,
+.monat-tag.ziel-markiert,
+.streifen-tag.ziel-markiert {
+  outline: 3px dashed var(--akzent);
+  outline-offset: 3px;
+}
+
+.streifen-tag.ziel-markiert {
+  transform: translateY(-4px) scale(1.06);
+}
+
+.papierkorb {
+  position: fixed;
+  left: 20px;
+  right: 20px;
+  bottom: calc(14px + env(safe-area-inset-bottom));
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  max-width: 480px;
+  height: var(--navigation-hoehe);
+  margin: 0 auto;
+  border: 2.5px dashed var(--gefahr);
+  border-radius: var(--radius-gross);
+  background: var(--flaeche);
+  color: var(--gefahr);
+  font-weight: 800;
+  box-shadow: 0 10px 30px rgba(20, 14, 40, 0.25);
+  animation: hochfahren 0.2s var(--feder);
+  transition: transform 0.15s var(--feder), background 0.15s;
+}
+
+.papierkorb span {
+  font-size: 1.5rem;
+}
+
+.papierkorb.aktiv {
+  border-style: solid;
+  background: var(--gefahr);
+  color: #FFFFFF;
+  transform: scale(1.06);
+}
+
+@keyframes hochfahren {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---------- Bottom Sheets ---------- */
+.blatt {
+  width: 100%;
+  max-width: 760px;
+  max-height: 92vh;
+  max-height: 92dvh;
+  margin: auto auto 0;
+  padding: 0;
+  border: none;
+  border-radius: 28px 28px 0 0;
+  background: var(--grund);
+  color: var(--text);
+  overflow: hidden;
+  display: none;
+  flex-direction: column;
+}
+
+.blatt[open] {
+  display: flex;
+  animation: blatt-rein 0.32s var(--feder);
+}
+
+.blatt.schliesst {
+  animation: blatt-raus 0.2s ease-in forwards;
+}
+
+.blatt.wird-gewischt {
+  transition: none;
+  animation: none;
+}
+
+.blatt::backdrop {
+  background: rgba(20, 14, 40, 0.45);
+  animation: abdunkeln 0.25s ease-out;
+}
+
+@keyframes blatt-rein {
+  from { transform: translateY(100%); }
+  to { transform: none; }
+}
+
+@keyframes blatt-raus {
+  to { transform: translateY(100%); }
+}
+
+@keyframes abdunkeln {
+  from { opacity: 0; }
+}
+
+@media (min-width: 760px) {
+  .blatt {
+    margin: auto;
+    border-radius: 28px;
+    max-height: 85vh;
+  }
+}
+
+.blatt-kopf {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 16px 12px 20px;
+  touch-action: none;
+  cursor: grab;
+}
+
+.blatt-griff {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  width: 44px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--gestrichelt);
+  transform: translateX(-50%);
+}
+
+.blatt-kopf h2 {
+  flex: 1;
+  margin: 0;
+  font-size: 20px;
+}
+
+.blatt-inhalt {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px 20px calc(20px + env(safe-area-inset-bottom));
+}
+
+.blatt-aktionen {
+  position: sticky;
+  bottom: calc(-20px - env(safe-area-inset-bottom));
+  margin: 0 -20px;
+  padding: 12px 20px calc(20px + env(safe-area-inset-bottom));
+  background: var(--grund);
+}
+
+.blatt-aktionen .knopf {
+  width: 100%;
+}
+
+body:has(dialog[open]) {
+  overflow: hidden;
+}
+
+/* ---------- Einkaufsliste ---------- */
+.einkauf-liste {
+  margin: 0 0 8px;
+  padding: 4px 16px;
+  list-style: none;
+  border-radius: var(--radius);
+  background: var(--flaeche);
+  box-shadow: 0 3px 0 var(--schatten);
+}
+
+.einkauf-liste li {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1.5px solid var(--flaeche-weich);
+  font-weight: 700;
+}
+
+.einkauf-liste li:last-child {
+  border-bottom: none;
+}
+
+.knopf.kopiert {
+  background: var(--pastell-1);
+  color: var(--pastell-1-symbol);
+  box-shadow: 0 4px 0 var(--schatten);
+}
+
+/* ---------- Rezepte: Suche und Filter ---------- */
 .suche-zeile {
-  margin-bottom: 8px;
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.suche-zeile .symbol {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  color: var(--text-leise);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.suche-zeile .eingabe {
+  padding-left: 44px;
+  border-radius: 16px;
 }
 
 .filter {
-  margin-bottom: 12px;
-  background: var(--flaeche);
-  border: 1px solid var(--rand);
+  margin-bottom: 14px;
   border-radius: var(--radius);
+  background: var(--flaeche);
+  box-shadow: 0 3px 0 var(--schatten);
 }
 
 .filter summary {
-  min-height: 44px;
-  padding: 10px 16px;
-  font-weight: 600;
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 16px;
+  font-weight: 800;
+  list-style: none;
   cursor: pointer;
+}
+
+.filter summary::-webkit-details-marker {
+  display: none;
+}
+
+.filter summary::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  margin-left: auto;
+  border-right: 2.5px solid var(--text-leise);
+  border-bottom: 2.5px solid var(--text-leise);
+  transform: rotate(45deg);
+  transition: transform 0.2s;
+}
+
+.filter[open] summary::after {
+  transform: rotate(225deg);
 }
 
 .filter-inhalt {
@@ -345,8 +1234,12 @@ select.eingabe {
 
 .filter-titel {
   margin: 16px 0 8px;
-  font-size: 0.9rem;
   color: var(--text-leise);
+  font-family: var(--schrift);
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .filter-inhalt .formular-zeile {
@@ -356,8 +1249,8 @@ select.eingabe {
 /* ---------- Rezept-Kacheln ---------- */
 .raster {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+  gap: 14px;
 }
 
 .raster .hinweis {
@@ -368,30 +1261,45 @@ select.eingabe {
   display: flex;
   flex-direction: column;
   padding: 0;
-  border: 1px solid var(--rand);
-  border-radius: var(--radius);
-  background: var(--flaeche);
-  text-align: left;
   overflow: hidden;
-  cursor: pointer;
+  border: none;
+  border-radius: 22px;
+  background: var(--flaeche);
+  color: var(--text);
+  text-align: left;
+  box-shadow: 0 3px 0 var(--schatten);
+  animation: ploppen 0.35s var(--feder) backwards;
+  transition: transform 0.12s;
 }
 
+.kachel:active {
+  transform: translateY(3px);
+  box-shadow: none;
+}
+
+.kachel:nth-child(2) { animation-delay: 0.03s; }
+.kachel:nth-child(3) { animation-delay: 0.06s; }
+.kachel:nth-child(4) { animation-delay: 0.09s; }
+.kachel:nth-child(n + 5) { animation-delay: 0.12s; }
+
 .kachel:focus-visible {
-  outline: 2px solid var(--akzent);
+  outline: 3px solid var(--akzent);
+  outline-offset: 2px;
 }
 
 .kachel-bild {
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
-  background: var(--hintergrund);
+  background: var(--bild-grund);
+  color: var(--bild-symbol);
 }
 
 .kachel-bild img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
 }
 
 .kachel-platzhalter {
@@ -399,22 +1307,20 @@ select.eingabe {
   align-items: center;
   justify-content: center;
   height: 100%;
-  font-size: 2.5rem;
-  opacity: 0.5;
 }
 
 .kachel-stern {
   position: absolute;
-  top: 6px;
-  right: 6px;
+  top: 8px;
+  right: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
-  font-size: 0.95rem;
+  background: var(--flaeche);
+  color: var(--gold);
 }
 
 .kachel-text {
@@ -425,53 +1331,88 @@ select.eingabe {
 }
 
 .kachel-titel {
-  font-weight: 600;
-  line-height: 1.3;
+  font-weight: 800;
+  line-height: 1.25;
 }
 
 .kachel-dauer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   color: var(--text-leise);
-  font-size: 0.85rem;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 /* ---------- Rezept ansehen ---------- */
 .rezept-bild {
   display: block;
-  width: calc(100% + 32px);
+  width: 100%;
   max-height: 50vh;
-  margin: -16px -16px 16px;
+  margin-bottom: 16px;
+  border-radius: var(--radius-gross);
   object-fit: cover;
+  box-shadow: 0 4px 0 var(--schatten);
 }
 
 .rezept-titel {
-  margin: 0 0 8px;
-  font-size: 1.6rem;
-  line-height: 1.25;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-size: 28px;
+}
+
+.titel-stern {
+  display: flex;
+  margin-top: 2px;
+  color: var(--gold);
 }
 
 .rezept-info {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 12px;
-  color: var(--text-leise);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.info-pille {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--akzent-weich);
+  color: var(--akzent);
+  font-size: 14px;
+  font-weight: 800;
 }
 
 .rezept h3 {
-  margin: 28px 0 8px;
+  margin: 28px 0 10px;
+  font-size: 22px;
 }
 
 .zutatenliste {
   margin: 0;
-  padding: 0;
+  padding: 4px 16px;
   list-style: none;
+  border-radius: var(--radius);
+  background: var(--flaeche);
+  box-shadow: 0 3px 0 var(--schatten);
 }
 
 .zutatenliste li {
   display: flex;
   gap: 12px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--rand);
+  padding: 10px 0;
+  border-bottom: 1.5px solid var(--flaeche-weich);
+  font-weight: 700;
+}
+
+.zutatenliste li:last-child {
+  border-bottom: none;
 }
 
 .zutat-mengenangabe {
@@ -480,7 +1421,7 @@ select.eingabe {
 }
 
 .zubereitung {
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 .zubereitung ul,
@@ -489,37 +1430,45 @@ select.eingabe {
 }
 
 .zubereitung li {
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+}
+
+.zubereitung ol li::marker {
+  color: var(--koralle);
+  font-family: var(--schrift-titel);
+  font-weight: 600;
 }
 
 /* ---------- Rezept bearbeiten ---------- */
 .rezept-formular {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
 }
 
 .rezept-formular .fehler {
-  margin: -16px 0 0;
+  margin: -18px 0 0;
 }
 
 .feld {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  min-width: 0;
   margin: 0;
   padding: 0;
   border: none;
-  min-width: 0;
 }
 
 .feld-titel {
   padding: 0;
+  font-family: var(--schrift-titel);
+  font-size: 18px;
   font-weight: 600;
 }
 
 .eingabe-kurz {
-  max-width: 120px;
+  max-width: 130px;
 }
 
 .bild-waehler {
@@ -529,13 +1478,13 @@ select.eingabe {
 
 .bild-vorschau {
   display: block;
-  overflow: hidden;
-  aspect-ratio: 4 / 3;
-  max-height: 320px;
   width: 100%;
-  border: 2px dashed var(--rand);
-  border-radius: var(--radius);
-  background: var(--flaeche);
+  max-height: 320px;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 3px dashed var(--gestrichelt);
+  border-radius: var(--radius-gross);
+  background: var(--akzent-weich);
 }
 
 .bild-vorschau img {
@@ -550,13 +1499,10 @@ select.eingabe {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 8px;
   height: 100%;
-  color: var(--text-leise);
-}
-
-.bild-leer span {
-  font-size: 2.5rem;
+  color: var(--akzent);
+  font-weight: 800;
 }
 
 .bild-waehler:focus-within .bild-vorschau {
@@ -577,10 +1523,11 @@ select.eingabe {
     "name name entfernen"
     "menge einheit .";
   gap: 6px;
-  padding: 8px;
-  border: 1px solid var(--rand);
+  padding: 10px;
   border-radius: var(--radius);
   background: var(--flaeche);
+  box-shadow: 0 3px 0 var(--schatten);
+  animation: ploppen 0.3s var(--feder);
 }
 
 .zutat-name { grid-area: name; }
@@ -592,541 +1539,116 @@ select.eingabe {
   opacity: 0.4;
 }
 
-/* Auf größeren Bildschirmen alles in einer Zeile */
 @media (min-width: 600px) {
   .zutat-zeile {
-    grid-template-columns: 90px 140px 1fr 44px;
+    grid-template-columns: 90px 150px 1fr 44px;
     grid-template-areas: "menge einheit name entfernen";
-    padding: 0;
-    border: none;
-    background: none;
   }
+}
+
+[data-zutat-plus] {
+  align-self: flex-start;
 }
 
 .editor-leiste {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 6px;
 }
 
 .editor-leiste button {
   min-width: 44px;
   min-height: 40px;
-  padding: 0 10px;
-  border: 1px solid var(--rand);
-  border-radius: 8px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 12px;
   background: var(--flaeche);
-  font: inherit;
-  color: inherit;
-  cursor: pointer;
+  box-shadow: 0 2px 0 var(--schatten);
+}
+
+.editor-leiste button:active {
+  transform: translateY(2px);
+  box-shadow: none;
 }
 
 .editor {
   min-height: 180px;
-  padding: 12px;
-  border: 1px solid var(--rand);
+  padding: 14px;
+  border: 2px solid var(--rand);
   border-radius: var(--radius);
   background: var(--flaeche);
   outline: none;
 }
 
 .editor:focus {
-  outline: 2px solid var(--akzent);
-  outline-offset: 1px;
+  border-color: var(--akzent);
+}
+
+.favorit-knopf {
+  justify-content: flex-start;
 }
 
 .favorit-knopf[aria-pressed="true"] {
-  border-color: #e0b100;
-  background: #fff6d6;
-  color: #6b5200;
+  background: var(--pastell-3);
+  color: var(--pastell-3-symbol);
 }
 
 .formular-aktionen {
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
 
 .formular-aktionen .knopf {
   flex: 1;
 }
 
-/* ---------- Kalender: Leiste und Navigation ---------- */
-.kalender-leiste {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.umschalter {
-  display: inline-flex;
-  padding: 3px;
-  border: 1px solid var(--rand);
+/* ---------- Kategorien ---------- */
+.liste {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow: hidden;
   border-radius: var(--radius);
   background: var(--flaeche);
+  box-shadow: 0 3px 0 var(--schatten);
 }
 
-.umschalter button {
-  min-width: 80px;
-  min-height: 38px;
-  border: none;
-  border-radius: 9px;
-  background: transparent;
-  font: inherit;
-  color: var(--text-leise);
-  cursor: pointer;
-}
-
-.umschalter button[aria-pressed="true"] {
-  background: var(--akzent);
-  color: var(--akzent-text);
-  font-weight: 600;
-}
-
-.kalender-navigation {
+.liste li {
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin-bottom: 12px;
-}
-
-.kalender-navigation .knopf-symbol {
-  font-size: 1.8rem;
-  line-height: 1;
-}
-
-.kalender-zeitraum {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  line-height: 1.3;
-  text-align: center;
-}
-
-.kalender-zeitraum .leise {
-  font-size: 0.85rem;
-}
-
-/* ---------- Wochenansicht (Handy: Tage untereinander) ---------- */
-.woche {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.tag {
-  display: grid;
-  grid-template-columns: 52px 1fr;
-  gap: 8px;
-  align-items: start;
-}
-
-.tag-kopf {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 8px;
-  line-height: 1.2;
-}
-
-.tag-name {
+  gap: 2px;
+  min-height: 54px;
+  padding: 4px 6px 4px 18px;
+  border-bottom: 1.5px solid var(--flaeche-weich);
   font-weight: 700;
 }
 
-.tag-datum {
-  color: var(--text-leise);
-  font-size: 0.8rem;
+.liste li:last-child {
+  border-bottom: none;
 }
 
-.tag.heute .tag-kopf {
-  color: var(--akzent);
-}
-
-.tag.heute .tag-datum {
-  color: var(--akzent);
-  font-weight: 600;
-}
-
-.tag-inhalt {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-}
-
-/* Kachel im Kalender: Bild links, Text rechts */
-.woche .kachel {
-  flex-direction: row;
-  width: 100%;
-  min-height: 92px;
-}
-
-.woche .kachel-bild {
-  flex: 0 0 104px;
-  width: 104px;
-  aspect-ratio: auto;
-}
-
-.woche .kachel-platzhalter {
-  font-size: 1.8rem;
-}
-
-.woche .kachel-stern {
-  width: 24px;
-  height: 24px;
-  font-size: 0.75rem;
-}
-
-.woche .kachel-text {
-  min-width: 0;
-  padding: 8px 10px;
-}
-
-.tag.heute .kachel {
-  border-color: var(--akzent);
-}
-
-.tag-plus {
-  width: 100%;
-  min-height: 92px;
-  border: 2px dashed var(--rand);
-  border-radius: var(--radius);
-  background: transparent;
-  color: var(--text-leise);
-  font-size: 1.8rem;
-  cursor: pointer;
-}
-
-.tag.heute .tag-plus {
-  border-color: var(--akzent);
-  color: var(--akzent);
-}
-
-.tag-plus:hover,
-.monat-plus:hover {
-  background: var(--flaeche);
-}
-
-/* Großer Bildschirm (Tablet quer, Computer): 7 Spalten nebeneinander */
-@media (min-width: 1000px) {
-  main {
-    max-width: 1300px;
-  }
-
-  .woche {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-  }
-
-  .tag {
-    grid-template-columns: 1fr;
-    align-content: start;
-  }
-
-  .tag-kopf {
-    flex-direction: row;
-    justify-content: center;
-    gap: 6px;
-    padding: 0 0 4px;
-  }
-
-  .woche .kachel {
-    flex-direction: column;
-  }
-
-  .woche .kachel-bild {
-    flex: none;
-    width: 100%;
-    aspect-ratio: 4 / 3;
-  }
-
-  .tag-plus {
-    min-height: 200px;
-  }
-}
-
-/* ---------- Monatsansicht ---------- */
-.monat {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 3px;
-}
-
-.monat-wochentag {
-  padding: 4px 0;
-  color: var(--text-leise);
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-align: center;
-}
-
-.monat-tag {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-height: 76px;
-  padding: 3px;
-  border: 1px solid var(--rand);
-  border-radius: 8px;
-  background: var(--flaeche);
-  min-width: 0;
-}
-
-.monat-tag.anderer-monat {
-  opacity: 0.45;
-}
-
-.monat-zahl {
-  font-size: 0.8rem;
-  font-weight: 600;
-  line-height: 1.4;
-  text-align: center;
-}
-
-.monat-tag.heute {
-  border-color: var(--akzent);
-  border-width: 2px;
-}
-
-.monat-tag.heute .monat-zahl {
-  color: var(--akzent);
-}
-
-.monat-eintrag {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  width: 100%;
-  padding: 2px 3px;
-  border: none;
-  border-radius: 4px;
-  background: var(--hintergrund);
-  background: color-mix(in srgb, var(--akzent) 15%, transparent);
-  color: var(--text);
-  font: inherit;
-  font-size: 0.7rem;
-  line-height: 1.25;
-  text-align: left;
-  word-break: break-word;
-  hyphens: auto;
-  cursor: pointer;
-}
-
-.monat-plus {
+.liste .name {
   flex: 1;
-  min-height: 32px;
-  border: none;
-  border-radius: 4px;
-  background: transparent;
-  color: var(--text-leise);
-  font-size: 1.1rem;
-  cursor: pointer;
 }
 
-@media (min-width: 700px) {
-  .monat-tag {
-    min-height: 110px;
-    padding: 6px;
-  }
-
-  .monat-eintrag {
-    font-size: 0.85rem;
-    padding: 4px 6px;
-  }
-}
-
-/* ---------- Overlay zur Rezeptauswahl ---------- */
-.auswahl {
-  width: 100%;
-  max-width: 900px;
-  height: 100%;
-  max-height: 100%;
-  margin: 0 auto;
-  padding: 0;
-  border: none;
-  background: var(--hintergrund);
-  color: var(--text);
-}
-
-.auswahl::backdrop {
-  background: rgba(0, 0, 0, 0.5);
-}
-
-@media (min-width: 700px) {
-  .auswahl {
-    height: auto;
-    max-height: 85vh;
-    margin: auto;
-    border-radius: var(--radius);
-  }
-}
-
-.auswahl-kopf {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: calc(8px + env(safe-area-inset-top)) 8px 8px 16px;
-  background: var(--hintergrund);
-  border-bottom: 1px solid var(--rand);
-}
-
-.auswahl-kopf h2 {
+.liste .umbenennen {
   flex: 1;
   margin: 0;
-  font-size: 1.1rem;
 }
 
-.auswahl-inhalt {
-  padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
-}
-
-body:has(dialog[open]) {
+/* ---------- Konfetti ---------- */
+.konfetti {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
   overflow: hidden;
-}
-
-/* ---------- Drag & Drop ---------- */
-.plan-eintrag {
-  -webkit-user-select: none;
-  user-select: none;
-  -webkit-touch-callout: none;
-}
-
-.plan-eintrag img {
-  -webkit-user-drag: none;
   pointer-events: none;
 }
 
-.wird-gezogen {
-  opacity: 0.3;
-}
-
-.zieh-geist {
-  position: fixed;
+.konfetti span {
+  position: absolute;
   top: 0;
-  left: 0;
-  z-index: 100;
-  pointer-events: none;
-  border-radius: var(--radius);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
-  opacity: 0.95;
-  will-change: transform;
-}
-
-.zieh-geist > * {
-  transform: scale(1.04) rotate(1.5deg);
-  transition: transform 0.15s, opacity 0.15s;
-}
-
-/* Über dem Papierkorb schrumpft die Kachel, damit der Papierkorb sichtbar bleibt */
-.zieh-geist.ueber-papierkorb > * {
-  transform: scale(0.4) rotate(-6deg);
-  opacity: 0.7;
-}
-
-body.zieht,
-body.zieht * {
-  cursor: grabbing !important;
-}
-
-/* Tag, über dem gerade ein Gericht schwebt */
-.tag.ziel-markiert .tag-inhalt,
-.monat-tag.ziel-markiert {
-  outline: 3px dashed var(--akzent);
-  outline-offset: 2px;
-  border-radius: var(--radius);
-}
-
-.tag.ziel-markiert .tag-kopf {
-  color: var(--akzent);
-}
-
-.papierkorb {
-  position: fixed;
-  left: 16px;
-  right: 16px;
-  bottom: calc(10px + env(safe-area-inset-bottom));
-  z-index: 90;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  max-width: 600px;
-  height: 76px;
-  margin: 0 auto;
-  border: 2px dashed var(--gefahr);
-  border-radius: var(--radius);
-  background: var(--flaeche);
-  color: var(--gefahr);
-  font-weight: 600;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-  animation: papierkorb-einblenden 0.15s ease-out;
-  transition: transform 0.1s, background 0.1s;
-}
-
-.papierkorb span {
-  font-size: 1.6rem;
-}
-
-.papierkorb.aktiv {
-  border-style: solid;
-  background: var(--gefahr);
-  color: #fff;
-  transform: scale(1.05);
-}
-
-@keyframes papierkorb-einblenden {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* ---------- Einkaufsliste ---------- */
-.einkauf-knopf {
-  width: 100%;
-  margin-bottom: 12px;
-  font-weight: 600;
-}
-
-.einkauf-inhalt {
-  padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
-}
-
-.einkauf-liste {
-  margin: 0 0 16px;
-  padding: 0;
-  list-style: none;
-}
-
-.einkauf-liste li {
-  display: flex;
-  gap: 12px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--rand);
-}
-
-.einkauf-aktionen {
-  position: sticky;
-  bottom: 0;
-  padding: 8px 0 0;
-  background: var(--hintergrund);
-}
-
-.einkauf-aktionen .knopf {
-  width: 100%;
-}
-
-.knopf.kopiert {
-  background: var(--flaeche);
-  border-color: var(--akzent);
-  color: var(--akzent);
-}
-
-@media (min-width: 1000px) {
-  .einkauf-knopf {
-    width: auto;
-  }
+  width: 9px;
+  height: 14px;
+  border-radius: 2px;
 }

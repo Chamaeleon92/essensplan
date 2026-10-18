@@ -100,3 +100,10 @@ export function bildVerkleinern(datei, maxKante = 1200) {
     bild.src = adresse;
   });
 }
+
+// Jedes Rezept bekommt anhand seiner ID eine feste Pastellfarbe (für Bilder-Platzhalter)
+export function farbklasse(id) {
+  let summe = 0;
+  for (const zeichen of String(id)) summe = (summe * 31 + zeichen.charCodeAt(0)) % 997;
+  return `farbe-${summe % 6}`;
+}

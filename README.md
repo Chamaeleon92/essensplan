@@ -15,7 +15,8 @@ Ein Doppelklick auf `index.html` reicht nicht: Die App ist in mehrere JavaScript
 | Datei | Inhalt |
 |---|---|
 | `index.html` | Grundgerüst mit Kopfzeile und Navigation |
-| `css/style.css` | Gestaltung (inkl. dunklem Modus) |
+| `css/style.css` | Gestaltung „Frisch & verspielt“ (Hell und Dunkel automatisch) |
+| `schriften/` | Schriften Fredoka und Nunito (SIL Open Font License), liegen lokal – keine Verbindung zu Google |
 | `js/app.js` | Startpunkt, wechselt zwischen den Ansichten |
 | `js/db.js` | Datenspeicherung im Browser (IndexedDB) |
 | `js/hilfen.js` | Hilfsfunktionen (Mengen, Dauer, Bilder verkleinern, Text bereinigen) |
@@ -23,6 +24,9 @@ Ein Doppelklick auf `index.html` reicht nicht: Die App ist in mehrere JavaScript
 | `js/einkaufsliste.js` | Einkaufsliste berechnen (zusammenrechnen, umrechnen, sortieren) |
 | `js/ziehen.js` | Drag & Drop im Kalender (Maus und Finger) mit Papierkorb |
 | `js/beispieldaten.js` | 8 Beispielrezepte zum Ausprobieren |
+| `js/symbole.js` | Alle Symbole als SVG |
+| `js/blatt.js` | Bottom Sheets (fahren von unten herein, wegwischbar) |
+| `js/konfetti.js` | Konfetti, wenn die Woche voll geplant ist |
 | `js/kopf.js` | Kopfzeile mit Titel, Zurück-Knopf und Aktionen |
 | `js/kachel.js` | Rezept-Kachel (Bild, Titel, Dauer, Kategorien, Favorit) |
 | `js/rezeptliste.js` | Rezeptliste mit Suche und Filter (auch für das Kalender-Overlay) |

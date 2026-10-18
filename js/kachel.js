@@ -1,7 +1,8 @@
 // Die Rezept-Kachel: Bild, Titel, Dauer, Kategorien und Favoriten-Stern.
 // Wird in der Rezeptübersicht, im Auswahl-Overlay und im Kalender verwendet.
 
-import { sicher, dauerText } from './hilfen.js';
+import { sicher, dauerText, farbklasse } from './hilfen.js';
+import { symbol } from './symbole.js';
 
 const MAX_KATEGORIEN = 3;
 
@@ -16,15 +17,17 @@ export function kachel(rezept, kategorienNachId) {
 
   return `
     <button type="button" class="kachel" data-id="${rezept.id}">
-      <div class="kachel-bild">
+      <div class="kachel-bild ${farbklasse(rezept.id)}">
         ${rezept.bild
           ? `<img src="${rezept.bild}" alt="" loading="lazy">`
-          : '<span class="kachel-platzhalter" aria-hidden="true">🍽️</span>'}
-        ${rezept.favorit ? '<span class="kachel-stern" title="Favorit" aria-label="Favorit">⭐</span>' : ''}
+          : `<span class="kachel-platzhalter">${symbol.teller({ groesse: 44 })}</span>`}
+        ${rezept.favorit
+          ? `<span class="kachel-stern" title="Favorit" role="img" aria-label="Favorit">${symbol.stern({ groesse: 18, fuellung: 'currentColor' })}</span>`
+          : ''}
       </div>
       <div class="kachel-text">
         <span class="kachel-titel">${sicher(rezept.titel)}</span>
-        ${rezept.dauer ? `<span class="kachel-dauer">⏱ ${dauerText(rezept.dauer)}</span>` : ''}
+        ${rezept.dauer ? `<span class="kachel-dauer">${symbol.uhr({ groesse: 14 })} ${dauerText(rezept.dauer)}</span>` : ''}
         ${sichtbar.length ? `
           <span class="chips chips-klein">
             ${sichtbar.map((name) => `<span class="chip">${sicher(name)}</span>`).join('')}
