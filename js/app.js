@@ -52,3 +52,10 @@ async function ansichtWechseln() {
 
 window.addEventListener('hashchange', ansichtWechseln);
 ansichtWechseln();
+
+// Offline-Unterstützung (funktioniert nur über https oder localhost)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js').catch(() => {
+    // Ohne Service Worker läuft die App trotzdem – nur eben nicht offline
+  });
+}

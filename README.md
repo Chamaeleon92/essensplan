@@ -36,3 +36,10 @@ Zum Ausprobieren gibt es 8 Beispielrezepte. Sie werden angelegt und in diese und
 - die Adresse um `#/beispieldaten` ergänzen, z. B. `http://127.0.0.1:5500/index.html#/beispieldaten`
 
 Rezepte, die es schon gibt, werden nicht doppelt angelegt.
+
+## Als App installieren
+
+Die App ist eine **Progressive Web App**: Sie lässt sich wie eine normale App auf den Homescreen legen, öffnet sich im Vollbild und funktioniert auch ohne Internet.
+
+- **iPhone/iPad (Safari):** Teilen-Symbol → **Zum Home-Bildschirm**
+- **Android (Chrome):** Menü ⋮ → **App installieren**
