@@ -31,7 +31,7 @@ export function kachel(rezept, kategorienNachId, bewertung) {
         ${rezept.dauer || bewertung ? `
           <span class="kachel-dauer">
             ${rezept.dauer ? `${symbol.uhr({ groesse: 14 })} ${dauerText(rezept.dauer)}` : ''}
-            ${bewertung ? `<span class="kachel-bewertung" title="${bewertung.anzahl}× bewertet">😋 ${bewertungText(bewertung.schnitt)}</span>` : ''}
+            ${bewertung ? `<span class="kachel-bewertung" title="${bewertung.anzahl}× bewertet">❤️ ${bewertungText(bewertung.schnitt)}</span>` : ''}
           </span>` : ''}
         ${sichtbar.length ? `
           <span class="chips chips-klein">

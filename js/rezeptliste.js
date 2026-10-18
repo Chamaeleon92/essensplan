@@ -47,7 +47,7 @@ export async function rezeptlisteAnzeigen(container, { filter, beiAuswahl, leerT
       <p class="anzahl"></p>
       <div class="umschalter umschalter-klein" role="group" aria-label="Sortierung">
         <button type="button" data-sortierung="name">A–Z</button>
-        <button type="button" data-sortierung="bewertung">😋 Beste zuerst</button>
+        <button type="button" data-sortierung="bewertung">❤️ Beste zuerst</button>
       </div>
     </div>
     <div class="raster"></div>

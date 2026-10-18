@@ -51,7 +51,7 @@ export async function anzeigen(container, id) {
         <span class="info-pille">Für 2 Personen</span>
         ${bewertung ? `
           <span class="info-pille bewertung-pille">
-            😋 ${bewertungText(bewertung.schnitt)} von 5 · ${bewertung.anzahl}× gekocht
+            ❤️ ${bewertungText(bewertung.schnitt)} von 5 · ${bewertung.anzahl}× gekocht
           </span>` : ''}
       </div>
 

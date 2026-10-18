@@ -186,10 +186,10 @@ function bewertungHtml(eintrag, rezept, weitere) {
       <div class="bewertung-text">
         <span class="plan-tag">Wie war's ${wann}?${weitere ? ` <span class="bewertung-weitere">+${weitere}</span>` : ''}</span>
         <strong class="plan-titel">${sicher(rezept.titel)}</strong>
-        <div class="loeffel-reihe" role="group" aria-label="Mit Löffeln bewerten">
+        <div class="herz-reihe" role="group" aria-label="Mit Herzen bewerten">
           ${[1, 2, 3, 4, 5].map((wert) => `
-            <button type="button" class="loeffel" data-loeffel="${wert}"
-                    aria-label="${wert} von 5 Löffeln">${symbol.loeffel({ groesse: 26 })}</button>
+            <button type="button" class="herz" data-herz="${wert}"
+                    aria-label="${wert} von 5 Herzen">${symbol.herz({ groesse: 26 })}</button>
           `).join('')}
         </div>
       </div>
@@ -198,12 +198,12 @@ function bewertungHtml(eintrag, rezept, weitere) {
   `;
 }
 
-// Löffel antippen: bis dahin füllen, kurz "Danke" zeigen, dann speichern
-async function bewerten(loeffel) {
-  const karte = loeffel.closest('.bewertung-karte');
-  const wert = Number(loeffel.dataset.loeffel);
-  for (const knopf of karte.querySelectorAll('.loeffel')) {
-    knopf.classList.toggle('voll', Number(knopf.dataset.loeffel) <= wert);
+// Herz antippen: bis dahin füllen, kurz "Danke" zeigen, dann speichern
+async function bewerten(herz) {
+  const karte = herz.closest('.bewertung-karte');
+  const wert = Number(herz.dataset.herz);
+  for (const knopf of karte.querySelectorAll('.herz')) {
+    knopf.classList.toggle('voll', Number(knopf.dataset.herz) <= wert);
     knopf.disabled = true;
   }
   karte.querySelector('.plan-tag').textContent = wert >= 4 ? 'Lecker! Danke 😋' : 'Danke fürs Bewerten!';
@@ -305,7 +305,7 @@ function planKarte(tag, eintrag, rezept, kategorienNachId, istHeute) {
     .map((id) => kategorienNachId.get(id)?.name)
     .filter(Boolean)
     .sort((a, b) => a.localeCompare(b, 'de'))[0];
-  const bewertet = eintrag.bewertung > 0 ? `😋 ${eintrag.bewertung}` : '';
+  const bewertet = eintrag.bewertung > 0 ? `❤️ ${eintrag.bewertung}` : '';
   const info = [dauerText(rezept.dauer), kategorie, bewertet].filter(Boolean).join(' · ');
   const tagText = istHeute ? `Heute Abend · ${wochentagKurz(tag)}` : `${wochentagKurz(tag)} ${datumKurz(tag)}`;
 
@@ -412,7 +412,7 @@ async function geklickt(ereignis) {
     await auswahlOeffnen(ziel.dataset.planen);
   } else if (ziel.dataset.wuerfeln) {
     await wuerfeln(ziel.dataset.wuerfeln, ziel);
-  } else if (ziel.dataset.loeffel) {
+  } else if (ziel.dataset.herz) {
     await bewerten(ziel);
   } else if (ziel.hasAttribute('data-ueberspringen')) {
     await bewertungAbschliessen(ziel.closest('.bewertung-karte'), 0);

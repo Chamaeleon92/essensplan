@@ -167,7 +167,7 @@ export function planEntfernen(id) {
 }
 
 // ---------- Bewertungen ("Wie war's?") ----------
-// Die Bewertung steht direkt am Planeintrag: bewertung = 1–5 Löffel, 0 = übersprungen.
+// Die Bewertung steht direkt am Planeintrag: bewertung = 1–5 Herzen, 0 = übersprungen.
 
 export function planBewerten(id, bewertung) {
   return transaktion('plan', 'readwrite', async (tx) => {
