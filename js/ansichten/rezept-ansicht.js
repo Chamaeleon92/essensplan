@@ -1,12 +1,15 @@
 // Ansichtsmodus eines Rezepts – zum Nachlesen beim Kochen.
 
-import { holen, alleKategorien } from '../db.js';
-import { sicher, mengeText, dauerText, htmlBereinigen } from '../hilfen.js';
+import { holen, alleKategorien, bewertungenProRezept } from '../db.js';
+import { sicher, mengeText, dauerText, htmlBereinigen, bewertungText } from '../hilfen.js';
 import { kopfSetzen } from '../kopf.js';
 import { symbol } from '../symbole.js';
 
 export async function anzeigen(container, id) {
-  const [rezept, kategorien] = await Promise.all([holen('rezepte', id), alleKategorien()]);
+  const [rezept, kategorien, bewertungen] = await Promise.all([
+    holen('rezepte', id), alleKategorien(), bewertungenProRezept(),
+  ]);
+  const bewertung = bewertungen.get(id);
 
   if (!rezept) {
     kopfSetzen({ titel: 'Rezept', zurueck: '#/rezepte' });
@@ -46,6 +49,10 @@ export async function anzeigen(container, id) {
       <div class="rezept-info">
         ${rezept.dauer ? `<span class="info-pille">${symbol.uhr({ groesse: 16 })} ${dauerText(rezept.dauer)}</span>` : ''}
         <span class="info-pille">Für 2 Personen</span>
+        ${bewertung ? `
+          <span class="info-pille bewertung-pille">
+            😋 ${bewertungText(bewertung.schnitt)} von 5 · ${bewertung.anzahl}× gekocht
+          </span>` : ''}
       </div>
 
       ${kategorienNamen.length ? `

@@ -107,3 +107,8 @@ export function farbklasse(id) {
   for (const zeichen of String(id)) summe = (summe * 31 + zeichen.charCodeAt(0)) % 997;
   return `farbe-${summe % 6}`;
 }
+
+// Durchschnittliche Bewertung als Text: 4.5 → "4,5", 4 → "4"
+export function bewertungText(schnitt) {
+  return schnitt.toLocaleString('de-DE', { maximumFractionDigits: 1 });
+}

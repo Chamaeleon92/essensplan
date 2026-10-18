@@ -1,7 +1,7 @@
 // Rezeptliste mit Suche und Filter (Favoriten, Kategorien, Zutaten).
 // Wird in der Rezeptübersicht und später im Auswahl-Overlay des Kalenders verwendet.
 
-import { alleRezepte, alleKategorien, alleZutatenNamen } from './db.js';
+import { alleRezepte, alleKategorien, alleZutatenNamen, bewertungenProRezept } from './db.js';
 import { sicher, gleicherName } from './hilfen.js';
 import { kachel } from './kachel.js';
 import { symbol } from './symbole.js';
@@ -9,7 +9,7 @@ import { symbol } from './symbole.js';
 // Ein leerer Filterzustand. Wer die Filter zwischen zwei Besuchen behalten will,
 // hebt sich das Objekt auf und gibt es beim nächsten Mal wieder mit.
 export function neuerFilter() {
-  return { suche: '', nurFavoriten: false, kategorien: [], zutaten: [], offen: false };
+  return { suche: '', nurFavoriten: false, kategorien: [], zutaten: [], offen: false, sortierung: 'name' };
 }
 
 // container:   Element, in das die Liste gezeichnet wird
@@ -17,8 +17,8 @@ export function neuerFilter() {
 // beiAuswahl:  Funktion, die beim Tippen auf eine Kachel mit dem Rezept aufgerufen wird
 // leerText:    HTML, das angezeigt wird, wenn es noch gar keine Rezepte gibt
 export async function rezeptlisteAnzeigen(container, { filter, beiAuswahl, leerText }) {
-  const [rezepte, kategorien, zutatenNamen] = await Promise.all([
-    alleRezepte(), alleKategorien(), alleZutatenNamen(),
+  const [rezepte, kategorien, zutatenNamen, bewertungen] = await Promise.all([
+    alleRezepte(), alleKategorien(), alleZutatenNamen(), bewertungenProRezept(),
   ]);
   const kategorienNachId = new Map(kategorien.map((k) => [k.id, k]));
 
@@ -43,7 +43,13 @@ export async function rezeptlisteAnzeigen(container, { filter, beiAuswahl, leerT
       <summary></summary>
       <div class="filter-inhalt"></div>
     </details>
-    <p class="anzahl"></p>
+    <div class="listen-leiste">
+      <p class="anzahl"></p>
+      <div class="umschalter umschalter-klein" role="group" aria-label="Sortierung">
+        <button type="button" data-sortierung="name">A–Z</button>
+        <button type="button" data-sortierung="bewertung">😋 Beste zuerst</button>
+      </div>
+    </div>
     <div class="raster"></div>
     <datalist id="${listenId}">
       ${zutatenNamen.map((n) => `<option value="${sicher(n)}">`).join('')}
@@ -94,9 +100,13 @@ export async function rezeptlisteAnzeigen(container, { filter, beiAuswahl, leerT
 
   function rasterZeichnen() {
     const treffer = rezepte.filter((rezept) => passt(rezept, filter));
+    if (filter.sortierung === 'bewertung') treffer.sort(besteZuerst);
+    for (const knopf of container.querySelectorAll('[data-sortierung]')) {
+      knopf.setAttribute('aria-pressed', String(knopf.dataset.sortierung === filter.sortierung));
+    }
     anzahl.textContent = treffer.length === 1 ? '1 Rezept' : `${treffer.length} Rezepte`;
     raster.innerHTML = treffer.length
-      ? treffer.map((r) => kachel(r, kategorienNachId)).join('')
+      ? treffer.map((r) => kachel(r, kategorienNachId, bewertungen.get(r.id))).join('')
       : '<p class="hinweis">Kein Rezept passt zu Suche und Filter.</p>';
   }
 
@@ -154,6 +164,22 @@ export async function rezeptlisteAnzeigen(container, { filter, beiAuswahl, leerT
       ereignis.preventDefault();
       zutatHinzufuegen();
     }
+  });
+
+  // Hitliste: bestbewertete zuerst, bei Gleichstand die öfter bewerteten; Unbewertete ans Ende
+  function besteZuerst(a, b) {
+    const ba = bewertungen.get(a.id);
+    const bb = bewertungen.get(b.id);
+    return (bb?.schnitt ?? 0) - (ba?.schnitt ?? 0)
+      || (bb?.anzahl ?? 0) - (ba?.anzahl ?? 0)
+      || a.titel.localeCompare(b.titel, 'de');
+  }
+
+  container.querySelector('[aria-label="Sortierung"]').addEventListener('click', (ereignis) => {
+    const knopf = ereignis.target.closest('[data-sortierung]');
+    if (!knopf) return;
+    filter.sortierung = knopf.dataset.sortierung;
+    rasterZeichnen();
   });
 
   raster.addEventListener('click', (ereignis) => {

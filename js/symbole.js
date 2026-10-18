@@ -23,6 +23,7 @@ export const symbol = {
   haken: (o) => svg('<path d="M5 12l5 5 9-10"/>', { strich: 2.8, ...o }),
   teller: (o) => svg('<path d="M3 12h18"/><path d="M4 12a8 8 0 0 0 16 0"/><path d="M9 7c0-1.5 1-2 1-3"/><path d="M13 7c0-1.5 1-2 1-3"/>', { strich: 1.8, ...o }),
   kamera: (o) => svg('<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>', o),
+  loeffel: (o) => svg('<ellipse cx="12" cy="7" rx="4.5" ry="5"/><path d="M12 12v9"/>', { strich: 2, ...o }),
   lupe: (o) => svg('<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>', o),
   kopieren: (o) => svg('<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>', o),
 };

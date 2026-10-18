@@ -1,7 +1,9 @@
 // Beispielrezepte zum Ausprobieren. Werden über "Beispielrezepte laden" (Rezepte oder Kategorien)
 // oder die Adresse #/beispieldaten angelegt. Rezepte, deren Titel es schon gibt, werden übersprungen.
 
-import { alleRezepte, alleKategorien, speichern, neueId, planImZeitraum, planEintragen } from './db.js';
+import {
+  alleRezepte, alleKategorien, speichern, neueId, planImZeitraum, planEintragen, planBewerten,
+} from './db.js';
 import { schluessel, wochenStart, plusTage } from './datum.js';
 import { gleicherName } from './hilfen.js';
 
@@ -264,11 +266,12 @@ function bildMalen(farbe, symbol) {
   return leinwand.toDataURL('image/jpeg', 0.8);
 }
 
-// Welches Rezept an welchem Tag eingeplant wird: [Wochen ab heute, Tag (0 = Montag), Titel]
+// Welches Rezept an welchem Tag eingeplant wird: [Wochen ab heute, Tag (0 = Montag), Titel, Bewertung]
+// Die letzte Woche ist schon bewertet – so sieht man die Hitliste und den "Wie war's?"-Ablauf.
 const PLAN = [
-  [-1, 0, 'Linsensuppe'], [-1, 1, 'Käsespätzle'], [-1, 2, 'Thai-Curry mit Garnelen'],
-  [-1, 3, 'Buddha Bowl mit Erdnusssoße'], [-1, 4, 'Pizza Margherita'], [-1, 5, 'Hähnchen-Fajitas'],
-  [-1, 6, 'Schokomousse'],
+  [-1, 0, 'Linsensuppe', 4], [-1, 1, 'Käsespätzle', 5], [-1, 2, 'Thai-Curry mit Garnelen', 3],
+  [-1, 3, 'Buddha Bowl mit Erdnusssoße', 4], [-1, 4, 'Pizza Margherita', 5], [-1, 5, 'Hähnchen-Fajitas', 5],
+  [-1, 6, 'Schokomousse', 2],
   [0, 0, 'Spaghetti Bolognese'], [0, 1, 'Gemüsecurry mit Reis'], [0, 2, 'Lachs mit Ofengemüse'],
   [0, 3, 'Tomatensuppe'], [0, 4, 'Chili sin Carne'], [0, 5, 'Griechischer Salat'],
   [1, 0, 'Shakshuka'], [1, 2, 'Ofenkartoffeln mit Kräuterquark'], [1, 4, 'Gefüllte Paprika'],
@@ -304,11 +307,12 @@ export async function beispieleLaden() {
   const belegt = new Set(
     (await planImZeitraum(schluessel(plusTage(montag, -7)), schluessel(plusTage(montag, 13)))).map((e) => e.datum)
   );
-  for (const [i, [, , titel]] of PLAN.entries()) {
+  for (const [i, [, , titel, bewertung]] of PLAN.entries()) {
     const datum = schluessel(tage[i]);
     const rezept = rezeptNachTitel.get(titel.toLocaleLowerCase('de'));
     if (rezept && !belegt.has(datum)) {
-      await planEintragen(datum, rezept.id);
+      const id = await planEintragen(datum, rezept.id);
+      if (bewertung) await planBewerten(id, bewertung);
       belegt.add(datum);
     }
   }

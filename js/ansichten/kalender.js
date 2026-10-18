@@ -2,12 +2,13 @@
 
 import {
   alleRezepte, alleKategorien, planImZeitraum, planEintragen, planVerschieben, planEntfernen,
+  planBewerten, offeneBewertungen, bewertungenProRezept,
 } from '../db.js';
 import {
   schluessel, ausSchluessel, plusTage, wochenTage, monatsTage, gleicherTag, kalenderwoche,
   wochentagKurz, datumKurz, datumLang, monatText, wochenText, wochenStart,
 } from '../datum.js';
-import { sicher, dauerText, farbklasse } from '../hilfen.js';
+import { sicher, dauerText, farbklasse, bewertungText } from '../hilfen.js';
 import { kopfSetzen } from '../kopf.js';
 import { symbol } from '../symbole.js';
 import { blattHtml, blattAktivieren, blattOeffnen, blattSchliessen } from '../blatt.js';
@@ -32,7 +33,9 @@ let alleRezepteListe = [];    // alle Rezepte (zum Würfeln)
 let geplanteRezepte = [];     // alle Rezepte der angezeigten Woche (für Einkaufsliste und Würfel)
 // Einkaufsliste der angezeigten Woche: alle Zutaten, die markierten (= kaufen wir) und Titel
 const einkauf = { liste: [], ausgewaehlt: new Set(), titel: '', woche: '' };
+let bewertungen = new Map();  // Rezept-ID → { schnitt, anzahl } (für den Würfel)
 let neuerEintragId = null;    // dieser Eintrag "ploppt" beim nächsten Zeichnen herein
+let bewertungGeradeAbgegeben = false; // dann ploppt die nächste Bewertungskarte herein
 let fortschrittVorher = null; // { woche, anzahl } – um eine gerade voll gewordene Woche zu feiern
 
 export async function anzeigen(ziel) {
@@ -98,12 +101,16 @@ async function zeichnen() {
   const istWoche = zustand.modus === 'woche';
   const tage = istWoche ? wochenTage(zustand.datum) : monatsTage(zustand.datum);
 
-  const [eintraege, rezepte, kategorien] = await Promise.all([
+  const heute = new Date();
+  const [eintraege, rezepte, kategorien, offene, bewertungenNeu] = await Promise.all([
     planImZeitraum(schluessel(tage[0]), schluessel(tage[tage.length - 1])),
     alleRezepte(),
     alleKategorien(),
+    offeneBewertungen(schluessel(plusTage(heute, -7)), schluessel(plusTage(heute, -1))),
+    bewertungenProRezept(),
   ]);
   alleRezepteListe = rezepte;
+  bewertungen = bewertungenNeu;
   const rezepteNachId = new Map(rezepte.map((r) => [r.id, r]));
   const kategorienNachId = new Map(kategorien.map((k) => [k.id, k]));
 
@@ -119,7 +126,12 @@ async function zeichnen() {
 
   kopfAktualisieren(istWoche, tage);
 
-  const heute = new Date();
+  // Die erste noch offene Bewertung, deren Rezept es noch gibt
+  const offeneMitRezept = offene.filter((eintrag) => rezepteNachId.has(eintrag.rezeptId));
+  const bewertung = offeneMitRezept.length
+    ? bewertungHtml(offeneMitRezept[0], rezepteNachId.get(offeneMitRezept[0].rezeptId), offeneMitRezept.length - 1)
+    : '';
+
   const zeigtHeute = istWoche
     ? tage.some((tag) => gleicherTag(tag, heute))
     : zustand.datum.getMonth() === heute.getMonth() && zustand.datum.getFullYear() === heute.getFullYear();
@@ -137,14 +149,19 @@ async function zeichnen() {
     </div>
 
     ${istWoche
-      ? wocheHtml(tage, proTag, kategorienNachId)
-      : monatHtml(tage, proTag)}
+      ? wocheHtml(tage, proTag, kategorienNachId, bewertung)
+      : bewertung + monatHtml(tage, proTag)}
 
     ${blattHtml({ klasse: 'auswahl', titelId: 'auswahl-titel' })}
     ${blattHtml({ klasse: 'einkauf', titelId: 'einkauf-titel' })}
   `;
 
   for (const dialog of container.querySelectorAll('dialog')) blattAktivieren(dialog);
+
+  if (bewertungGeradeAbgegeben) {
+    container.querySelector('.bewertung-karte')?.classList.add('neu');
+    bewertungGeradeAbgegeben = false;
+  }
 
   // Gerade eingeplantes Gericht hereinploppen lassen
   if (neuerEintragId) {
@@ -155,9 +172,59 @@ async function zeichnen() {
   if (istWoche) feiernWennVoll(tage, proTag);
 }
 
+// ---------- "Wie war's?" ----------
+
+function bewertungHtml(eintrag, rezept, weitere) {
+  const tag = ausSchluessel(eintrag.datum);
+  const gestern = gleicherTag(tag, plusTage(new Date(), -1));
+  const wann = gestern ? 'gestern' : `am ${datumLang(tag).split(',')[0]}`;
+  return `
+    <section class="bewertung-karte" data-bewertung-eintrag="${eintrag.id}" aria-label="Bewertung">
+      <span class="plan-bild ${farbklasse(rezept.id)}">
+        ${rezept.bild ? `<img src="${rezept.bild}" alt="">` : symbol.teller({ groesse: 28 })}
+      </span>
+      <div class="bewertung-text">
+        <span class="plan-tag">Wie war's ${wann}?${weitere ? ` <span class="bewertung-weitere">+${weitere}</span>` : ''}</span>
+        <strong class="plan-titel">${sicher(rezept.titel)}</strong>
+        <div class="loeffel-reihe" role="group" aria-label="Mit Löffeln bewerten">
+          ${[1, 2, 3, 4, 5].map((wert) => `
+            <button type="button" class="loeffel" data-loeffel="${wert}"
+                    aria-label="${wert} von 5 Löffeln">${symbol.loeffel({ groesse: 26 })}</button>
+          `).join('')}
+        </div>
+      </div>
+      <button type="button" class="knopf-text bewertung-ueberspringen" data-ueberspringen>Überspringen</button>
+    </section>
+  `;
+}
+
+// Löffel antippen: bis dahin füllen, kurz "Danke" zeigen, dann speichern
+async function bewerten(loeffel) {
+  const karte = loeffel.closest('.bewertung-karte');
+  const wert = Number(loeffel.dataset.loeffel);
+  for (const knopf of karte.querySelectorAll('.loeffel')) {
+    knopf.classList.toggle('voll', Number(knopf.dataset.loeffel) <= wert);
+    knopf.disabled = true;
+  }
+  karte.querySelector('.plan-tag').textContent = wert >= 4 ? 'Lecker! Danke 😋' : 'Danke fürs Bewerten!';
+  navigator.vibrate?.(15);
+  await new Promise((fertig) => setTimeout(fertig, 700));
+  await bewertungAbschliessen(karte, wert);
+}
+
+async function bewertungAbschliessen(karte, wert) {
+  await planBewerten(karte.dataset.bewertungEintrag, wert);
+  karte.classList.add('verschwindet');
+  await new Promise((fertig) => setTimeout(fertig, 250));
+  bewertungGeradeAbgegeben = true;
+  await zeichnen();
+}
+
 // ---------- Wochenansicht ----------
 
-function wocheHtml(tage, proTag, kategorienNachId) {
+// bewertung: HTML der "Wie war's?"-Karte (oder '') – steht unter dem Wochenstreifen,
+// damit der Streifen von Anfang an oben kleben bleibt
+function wocheHtml(tage, proTag, kategorienNachId, bewertung) {
   const heute = new Date();
   const geplanteTage = tage.filter((tag) => proTag.has(schluessel(tag))).length;
 
@@ -183,6 +250,8 @@ function wocheHtml(tage, proTag, kategorienNachId) {
         `;
       }).join('')}
     </div>
+
+    ${bewertung}
 
     ${fortschrittHtml(geplanteTage)}
 
@@ -236,7 +305,8 @@ function planKarte(tag, eintrag, rezept, kategorienNachId, istHeute) {
     .map((id) => kategorienNachId.get(id)?.name)
     .filter(Boolean)
     .sort((a, b) => a.localeCompare(b, 'de'))[0];
-  const info = [dauerText(rezept.dauer), kategorie].filter(Boolean).join(' · ');
+  const bewertet = eintrag.bewertung > 0 ? `😋 ${eintrag.bewertung}` : '';
+  const info = [dauerText(rezept.dauer), kategorie, bewertet].filter(Boolean).join(' · ');
   const tagText = istHeute ? `Heute Abend · ${wochentagKurz(tag)}` : `${wochentagKurz(tag)} ${datumKurz(tag)}`;
 
   return `
@@ -342,6 +412,10 @@ async function geklickt(ereignis) {
     await auswahlOeffnen(ziel.dataset.planen);
   } else if (ziel.dataset.wuerfeln) {
     await wuerfeln(ziel.dataset.wuerfeln, ziel);
+  } else if (ziel.dataset.loeffel) {
+    await bewerten(ziel);
+  } else if (ziel.hasAttribute('data-ueberspringen')) {
+    await bewertungAbschliessen(ziel.closest('.bewertung-karte'), 0);
   } else if (ziel.dataset.zutat !== undefined) {
     zutatUmschalten(ziel);
   } else if (ziel.hasAttribute('data-alle')) {
@@ -376,7 +450,8 @@ async function abgelegt(eintragId, ziel) {
 }
 
 // Würfelt ein zufälliges Rezept für einen Tag. Bevorzugt Rezepte, die diese Woche
-// noch nicht dran sind – Favoriten haben doppelte Chancen.
+// noch nicht dran sind. Favoriten und gut bewertete Rezepte haben bessere Chancen,
+// schlecht bewertete schlechtere.
 async function wuerfeln(tagSchluessel, knopf) {
   if (alleRezepteListe.length === 0) {
     await auswahlOeffnen(tagSchluessel);
@@ -385,7 +460,7 @@ async function wuerfeln(tagSchluessel, knopf) {
   const schonGeplant = new Set(geplanteRezepte.map((r) => r.id));
   const frische = alleRezepteListe.filter((r) => !schonGeplant.has(r.id));
   const auswahl = frische.length ? frische : alleRezepteListe;
-  const lose = auswahl.flatMap((r) => (r.favorit ? [r, r] : [r]));
+  const lose = auswahl.flatMap((r) => Array(anzahlLose(r)).fill(r));
   const rezept = lose[Math.floor(Math.random() * lose.length)];
 
   knopf.classList.add('rollt');
@@ -394,6 +469,16 @@ async function wuerfeln(tagSchluessel, knopf) {
 
   neuerEintragId = await planEintragen(tagSchluessel, rezept.id);
   await zeichnen();
+}
+
+// Wie viele "Lose" ein Rezept im Würfel-Topf bekommt (normal: 2)
+function anzahlLose(rezept) {
+  const schnitt = bewertungen.get(rezept.id)?.schnitt;
+  let lose = 2;
+  if (rezept.favorit) lose += 2;
+  if (schnitt >= 4) lose += 2;
+  if (schnitt <= 2) lose -= 1;
+  return lose;
 }
 
 // Feiert mit Konfetti, wenn die Woche gerade eben voll geworden ist

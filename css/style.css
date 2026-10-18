@@ -1747,3 +1747,127 @@ body:has(dialog[open]) {
   flex-direction: column;
   gap: 10px;
 }
+
+/* ---------- "Wie war's?" – Bewertung mit Löffeln ---------- */
+.bewertung-karte {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 12px 12px 10px;
+  border-radius: 22px;
+  background: var(--pastell-3);
+  box-shadow: 0 3px 0 var(--schatten);
+  transition: opacity 0.25s, transform 0.25s;
+}
+
+.bewertung-karte.neu {
+  animation: ploppen 0.45s var(--feder);
+}
+
+.bewertung-karte.verschwindet {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.bewertung-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.bewertung-weitere {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--flaeche);
+  font-size: 11px;
+}
+
+.loeffel-reihe {
+  display: flex;
+  gap: 2px;
+  margin-top: 4px;
+  margin-left: -8px;
+}
+
+.loeffel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--pastell-3-symbol);
+  opacity: 0.55;
+  transition: transform 0.25s var(--feder), opacity 0.15s;
+}
+
+.loeffel:active {
+  transform: scale(0.85);
+}
+
+/* Gewählt: Löffel gefüllt und hüpfend */
+.loeffel.voll {
+  color: var(--koralle);
+  opacity: 1;
+  transform: scale(1.15) rotate(-12deg);
+}
+
+.loeffel.voll .symbol {
+  fill: currentColor;
+}
+
+.loeffel:disabled {
+  cursor: default;
+}
+
+.bewertung-ueberspringen {
+  position: absolute;
+  top: 2px;
+  right: 12px;
+  min-height: 36px;
+  color: var(--pastell-3-symbol);
+  font-size: 13px;
+}
+
+.bewertung-karte .plan-tag {
+  color: var(--pastell-3-symbol);
+}
+
+/* ---------- Rezeptliste: Sortierung und Bewertung ---------- */
+.listen-leiste {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.listen-leiste .anzahl {
+  margin: 0;
+}
+
+.umschalter-klein button {
+  min-width: 0;
+  min-height: 34px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+.kachel-bewertung {
+  margin-left: auto;
+  color: var(--koralle-tief);
+  font-weight: 800;
+}
+
+.bewertung-pille {
+  background: var(--pastell-3);
+  color: var(--pastell-3-symbol);
+}

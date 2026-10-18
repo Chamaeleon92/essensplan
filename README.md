@@ -39,7 +39,7 @@ Zum Ausprobieren gibt es 20 Beispielrezepte (einige ohne Foto). Sie werden angel
 - unter **Kategorien → Zum Ausprobieren → Beispielrezepte laden** (oder in der leeren Rezeptliste), oder
 - die Adresse um `#/beispieldaten` ergänzen, z. B. `http://127.0.0.1:5500/index.html#/beispieldaten`
 
-Rezepte, die es schon gibt, werden nicht doppelt angelegt. Mit **Alles zurücksetzen** (ebenfalls unter Kategorien) fängt man wieder bei null an.
+Die letzte Woche ist schon bewertet, die vergangenen Tage dieser Woche noch nicht – so erscheint gleich die „Wie war's?“-Karte. Rezepte, die es schon gibt, werden nicht doppelt angelegt. Mit **Alles zurücksetzen** (ebenfalls unter Kategorien) fängt man wieder bei null an.
 
 ## Als App installieren
 
