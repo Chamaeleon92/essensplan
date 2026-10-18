@@ -18,5 +18,8 @@ Ein Doppelklick auf `index.html` reicht nicht: Die App ist in mehrere JavaScript
 | `css/style.css` | Gestaltung (inkl. dunklem Modus) |
 | `js/app.js` | Startpunkt, wechselt zwischen den Ansichten |
 | `js/db.js` | Datenspeicherung im Browser (IndexedDB) |
-| `js/hilfen.js` | Kleine Hilfsfunktionen |
-| `js/ansichten/` | Eine Datei pro Ansicht (Kalender, Rezepte, Kategorien) |
+| `js/hilfen.js` | Hilfsfunktionen (Mengen, Dauer, Bilder verkleinern, Text bereinigen) |
+| `js/kopf.js` | Kopfzeile mit Titel, Zurück-Knopf und Aktionen |
+| `js/kachel.js` | Rezept-Kachel (Bild, Titel, Dauer, Kategorien, Favorit) |
+| `js/rezeptliste.js` | Rezeptliste mit Suche und Filter (auch für das Kalender-Overlay) |
+| `js/ansichten/` | Eine Datei pro Ansicht: Kalender, Rezepte, Rezept ansehen, Rezept bearbeiten, Kategorien |

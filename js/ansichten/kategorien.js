@@ -2,6 +2,7 @@
 
 import { alleKategorien, speichern, kategorieLoeschen, neueId } from '../db.js';
 import { sicher, gleicherName } from '../hilfen.js';
+import { kopfSetzen } from '../kopf.js';
 
 let container;
 let kategorien = [];
@@ -9,6 +10,7 @@ let bearbeiteteId = null; // Kategorie, die gerade umbenannt wird
 let fehlermeldung = '';
 
 export async function anzeigen(ziel) {
+  kopfSetzen({ titel: 'Kategorien' });
   container = ziel;
   bearbeiteteId = null;
   fehlermeldung = '';

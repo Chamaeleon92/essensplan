@@ -206,3 +206,446 @@ input {
   color: var(--text-leise);
   font-size: 0.9rem;
 }
+
+/* ---------- Kopfzeile mit Zurück-Knopf und Aktionen ---------- */
+.kopfzeile {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.kopfzeile h1 {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#zurueck {
+  margin-left: -12px;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+#kopf-aktionen {
+  display: flex;
+  gap: 4px;
+  margin-right: -8px;
+}
+
+#kopf-aktionen .knopf-symbol {
+  font-size: 1.4rem;
+}
+
+/* ---------- Allgemeines ---------- */
+.leise {
+  color: var(--text-leise);
+  font-weight: normal;
+}
+
+.unsichtbar {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hinweis .knopf {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.knopf-text {
+  min-height: 44px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--akzent);
+  font: inherit;
+  cursor: pointer;
+}
+
+.knopf-gefahr {
+  width: 100%;
+  color: var(--gefahr);
+  border-color: var(--gefahr);
+  background: transparent;
+}
+
+select.eingabe {
+  appearance: none;
+  padding-right: 28px;
+  background-image: linear-gradient(45deg, transparent 50%, var(--text-leise) 50%),
+    linear-gradient(135deg, var(--text-leise) 50%, transparent 50%);
+  background-position: calc(100% - 16px) 50%, calc(100% - 11px) 50%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+}
+
+/* ---------- Chips (kleine Etiketten) ---------- */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border: 1px solid var(--rand);
+  border-radius: 999px;
+  background: var(--hintergrund);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.chip-waehlbar {
+  min-height: 36px;
+  padding: 0 14px;
+  cursor: pointer;
+}
+
+.chip-waehlbar[aria-pressed="true"] {
+  background: var(--akzent);
+  border-color: var(--akzent);
+  color: var(--akzent-text);
+}
+
+.chips-klein .chip {
+  padding: 0 8px;
+  font-size: 0.75rem;
+}
+
+/* ---------- Suche und Filter ---------- */
+.suche-zeile {
+  margin-bottom: 8px;
+}
+
+.filter {
+  margin-bottom: 12px;
+  background: var(--flaeche);
+  border: 1px solid var(--rand);
+  border-radius: var(--radius);
+}
+
+.filter summary {
+  min-height: 44px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.filter-inhalt {
+  padding: 0 16px 16px;
+}
+
+.filter-titel {
+  margin: 16px 0 8px;
+  font-size: 0.9rem;
+  color: var(--text-leise);
+}
+
+.filter-inhalt .formular-zeile {
+  margin-bottom: 8px;
+}
+
+/* ---------- Rezept-Kacheln ---------- */
+.raster {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.raster .hinweis {
+  grid-column: 1 / -1;
+}
+
+.kachel {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  border: 1px solid var(--rand);
+  border-radius: var(--radius);
+  background: var(--flaeche);
+  text-align: left;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.kachel:focus-visible {
+  outline: 2px solid var(--akzent);
+}
+
+.kachel-bild {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: var(--hintergrund);
+}
+
+.kachel-bild img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.kachel-platzhalter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 2.5rem;
+  opacity: 0.5;
+}
+
+.kachel-stern {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+}
+
+.kachel-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px 12px;
+}
+
+.kachel-titel {
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.kachel-dauer {
+  color: var(--text-leise);
+  font-size: 0.85rem;
+}
+
+/* ---------- Rezept ansehen ---------- */
+.rezept-bild {
+  display: block;
+  width: calc(100% + 32px);
+  max-height: 50vh;
+  margin: -16px -16px 16px;
+  object-fit: cover;
+}
+
+.rezept-titel {
+  margin: 0 0 8px;
+  font-size: 1.6rem;
+  line-height: 1.25;
+}
+
+.rezept-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 12px;
+  color: var(--text-leise);
+}
+
+.rezept h3 {
+  margin: 28px 0 8px;
+}
+
+.zutatenliste {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.zutatenliste li {
+  display: flex;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--rand);
+}
+
+.zutat-mengenangabe {
+  flex: 0 0 130px;
+  color: var(--text-leise);
+}
+
+.zubereitung {
+  line-height: 1.6;
+}
+
+.zubereitung ul,
+.zubereitung ol {
+  padding-left: 1.4em;
+}
+
+.zubereitung li {
+  margin-bottom: 4px;
+}
+
+/* ---------- Rezept bearbeiten ---------- */
+.rezept-formular {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.rezept-formular .fehler {
+  margin: -16px 0 0;
+}
+
+.feld {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  min-width: 0;
+}
+
+.feld-titel {
+  padding: 0;
+  font-weight: 600;
+}
+
+.eingabe-kurz {
+  max-width: 120px;
+}
+
+.bild-waehler {
+  display: block;
+  cursor: pointer;
+}
+
+.bild-vorschau {
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  max-height: 320px;
+  width: 100%;
+  border: 2px dashed var(--rand);
+  border-radius: var(--radius);
+  background: var(--flaeche);
+}
+
+.bild-vorschau img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bild-leer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 100%;
+  color: var(--text-leise);
+}
+
+.bild-leer span {
+  font-size: 2.5rem;
+}
+
+.bild-waehler:focus-within .bild-vorschau {
+  border-color: var(--akzent);
+}
+
+.zutaten-zeilen {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Am Handy: Zutat oben, Menge und Einheit darunter */
+.zutat-zeile {
+  display: grid;
+  grid-template-columns: 1fr 1fr 44px;
+  grid-template-areas:
+    "name name entfernen"
+    "menge einheit .";
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid var(--rand);
+  border-radius: var(--radius);
+  background: var(--flaeche);
+}
+
+.zutat-name { grid-area: name; }
+.zutat-menge { grid-area: menge; }
+.zutat-einheit { grid-area: einheit; }
+.zutat-zeile [data-zutat-entfernen] { grid-area: entfernen; }
+
+.zutat-menge:disabled {
+  opacity: 0.4;
+}
+
+/* Auf größeren Bildschirmen alles in einer Zeile */
+@media (min-width: 600px) {
+  .zutat-zeile {
+    grid-template-columns: 90px 140px 1fr 44px;
+    grid-template-areas: "menge einheit name entfernen";
+    padding: 0;
+    border: none;
+    background: none;
+  }
+}
+
+.editor-leiste {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.editor-leiste button {
+  min-width: 44px;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--rand);
+  border-radius: 8px;
+  background: var(--flaeche);
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.editor {
+  min-height: 180px;
+  padding: 12px;
+  border: 1px solid var(--rand);
+  border-radius: var(--radius);
+  background: var(--flaeche);
+  outline: none;
+}
+
+.editor:focus {
+  outline: 2px solid var(--akzent);
+  outline-offset: 1px;
+}
+
+.favorit-knopf[aria-pressed="true"] {
+  border-color: #e0b100;
+  background: #fff6d6;
+  color: #6b5200;
+}
+
+.formular-aktionen {
+  display: flex;
+  gap: 8px;
+}
+
+.formular-aktionen .knopf {
+  flex: 1;
+}

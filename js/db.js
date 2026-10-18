@@ -99,3 +99,37 @@ export function kategorieLoeschen(id) {
     }
   });
 }
+
+// ---------- Rezepte ----------
+
+export async function alleRezepte() {
+  const rezepte = await alle('rezepte');
+  return rezepte.sort((a, b) => a.titel.localeCompare(b.titel, 'de'));
+}
+
+// Löscht ein Rezept und nimmt es aus dem Kalender.
+export function rezeptLoeschen(id) {
+  return transaktion(['rezepte', 'plan'], 'readwrite', async (tx) => {
+    tx.objectStore('rezepte').delete(id);
+    const planTabelle = tx.objectStore('plan');
+    const eintraege = await warten(planTabelle.getAll());
+    for (const eintrag of eintraege) {
+      if (eintrag.rezeptId === id) {
+        planTabelle.delete(eintrag.id);
+      }
+    }
+  });
+}
+
+// Alle Zutatennamen, die in irgendeinem Rezept vorkommen – für Vorschläge und den Zutatenfilter.
+export async function alleZutatenNamen() {
+  const rezepte = await alle('rezepte');
+  const namen = new Map(); // klein geschrieben → Schreibweise, wie sie zuerst vorkam
+  for (const rezept of rezepte) {
+    for (const zutat of rezept.zutaten) {
+      const schluessel = zutat.name.toLocaleLowerCase('de');
+      if (!namen.has(schluessel)) namen.set(schluessel, zutat.name);
+    }
+  }
+  return [...namen.values()].sort((a, b) => a.localeCompare(b, 'de'));
+}
