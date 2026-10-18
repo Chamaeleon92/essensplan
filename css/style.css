@@ -1157,11 +1157,70 @@ body:has(dialog[open]) {
 }
 
 .einkauf-liste li {
-  display: flex;
-  gap: 12px;
-  padding: 10px 0;
   border-bottom: 1.5px solid var(--flaeche-weich);
+}
+
+.einkauf-leiste {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.einkauf-hinweis {
+  color: var(--text-leise);
+  font-size: 14px;
   font-weight: 700;
+}
+
+/* Eine Zutat zum Antippen: leerer Kreis = haben wir, violetter Haken = kaufen wir */
+.einkauf-eintrag {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 8px 0;
+  border: none;
+  background: none;
+  color: var(--text-leise);
+  font-weight: 700;
+  text-align: left;
+}
+
+.einkauf-haken {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border: 2.5px solid var(--gestrichelt);
+  border-radius: 50%;
+  color: transparent;
+  transition: background 0.15s, border-color 0.15s, transform 0.25s var(--feder);
+}
+
+.einkauf-eintrag[aria-checked="true"] {
+  color: var(--text);
+}
+
+.einkauf-eintrag[aria-checked="true"] .einkauf-haken {
+  border-color: var(--akzent);
+  background: var(--akzent);
+  color: var(--akzent-text);
+  transform: scale(1.1);
+}
+
+.einkauf-eintrag[aria-checked="true"] .zutat-mengenangabe {
+  color: var(--akzent);
+}
+
+.einkauf-eintrag:focus-visible {
+  outline: 3px solid var(--akzent);
+  outline-offset: 2px;
+  border-radius: 8px;
 }
 
 .einkauf-liste li:last-child {
