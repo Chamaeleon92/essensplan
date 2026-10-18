@@ -1122,7 +1122,9 @@ body.zieht * {
 }
 
 .blatt-inhalt {
-  flex: 1;
+  /* "auto" statt "1": Safari rechnet bei flex: 1 die Höhe sonst auf null herunter */
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 4px 20px calc(20px + env(safe-area-inset-bottom));
