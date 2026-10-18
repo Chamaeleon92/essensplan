@@ -1778,15 +1778,6 @@ body:has(dialog[open]) {
   min-width: 0;
 }
 
-.bewertung-weitere {
-  display: inline-block;
-  margin-left: 4px;
-  padding: 0 6px;
-  border-radius: 999px;
-  background: var(--flaeche);
-  font-size: 11px;
-}
-
 .herz-reihe {
   display: flex;
   gap: 2px;

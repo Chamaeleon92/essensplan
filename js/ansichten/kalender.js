@@ -129,7 +129,7 @@ async function zeichnen() {
   // Die erste noch offene Bewertung, deren Rezept es noch gibt
   const offeneMitRezept = offene.filter((eintrag) => rezepteNachId.has(eintrag.rezeptId));
   const bewertung = offeneMitRezept.length
-    ? bewertungHtml(offeneMitRezept[0], rezepteNachId.get(offeneMitRezept[0].rezeptId), offeneMitRezept.length - 1)
+    ? bewertungHtml(offeneMitRezept[0], rezepteNachId.get(offeneMitRezept[0].rezeptId))
     : '';
 
   const zeigtHeute = istWoche
@@ -174,7 +174,7 @@ async function zeichnen() {
 
 // ---------- "Wie war's?" ----------
 
-function bewertungHtml(eintrag, rezept, weitere) {
+function bewertungHtml(eintrag, rezept) {
   const tag = ausSchluessel(eintrag.datum);
   const gestern = gleicherTag(tag, plusTage(new Date(), -1));
   const wann = gestern ? 'gestern' : `am ${datumLang(tag).split(',')[0]}`;
@@ -184,7 +184,7 @@ function bewertungHtml(eintrag, rezept, weitere) {
         ${rezept.bild ? `<img src="${rezept.bild}" alt="">` : symbol.teller({ groesse: 28 })}
       </span>
       <div class="bewertung-text">
-        <span class="plan-tag">Wie war's ${wann}?${weitere ? ` <span class="bewertung-weitere">+${weitere}</span>` : ''}</span>
+        <span class="plan-tag">Wie war's ${wann}?</span>
         <strong class="plan-titel">${sicher(rezept.titel)}</strong>
         <div class="herz-reihe" role="group" aria-label="Mit Herzen bewerten">
           ${[1, 2, 3, 4, 5].map((wert) => `
