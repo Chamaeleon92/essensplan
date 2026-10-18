@@ -1,13 +1,14 @@
 // Die Rezept-Kachel: Bild, Titel, Dauer, Kategorien und Favoriten-Stern.
 // Wird in der Rezeptübersicht, im Auswahl-Overlay und im Kalender verwendet.
 
-import { sicher, dauerText, farbklasse } from './hilfen.js';
+import { sicher, dauerText, farbklasse, bewertungText } from './hilfen.js';
 import { symbol } from './symbole.js';
 
 const MAX_KATEGORIEN = 3;
 
 // kategorienNachId: Map von Kategorie-ID → Kategorie, damit wir die Namen anzeigen können
-export function kachel(rezept, kategorienNachId) {
+// bewertung:       { schnitt, anzahl } oder undefined, wenn das Rezept noch nicht bewertet wurde
+export function kachel(rezept, kategorienNachId, bewertung) {
   const namen = (rezept.kategorien ?? [])
     .map((id) => kategorienNachId.get(id)?.name)
     .filter(Boolean)
@@ -27,7 +28,11 @@ export function kachel(rezept, kategorienNachId) {
       </div>
       <div class="kachel-text">
         <span class="kachel-titel">${sicher(rezept.titel)}</span>
-        ${rezept.dauer ? `<span class="kachel-dauer">${symbol.uhr({ groesse: 14 })} ${dauerText(rezept.dauer)}</span>` : ''}
+        ${rezept.dauer || bewertung ? `
+          <span class="kachel-dauer">
+            ${rezept.dauer ? `${symbol.uhr({ groesse: 14 })} ${dauerText(rezept.dauer)}` : ''}
+            ${bewertung ? `<span class="kachel-bewertung" title="${bewertung.anzahl}× bewertet">❤️ ${bewertungText(bewertung.schnitt)}</span>` : ''}
+          </span>` : ''}
         ${sichtbar.length ? `
           <span class="chips chips-klein">
             ${sichtbar.map((name) => `<span class="chip">${sicher(name)}</span>`).join('')}

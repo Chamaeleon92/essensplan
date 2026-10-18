@@ -166,6 +166,36 @@ export function planEntfernen(id) {
   });
 }
 
+// ---------- Bewertungen ("Wie war's?") ----------
+// Die Bewertung steht direkt am Planeintrag: bewertung = 1–5 Herzen, 0 = übersprungen.
+
+export function planBewerten(id, bewertung) {
+  return transaktion('plan', 'readwrite', async (tx) => {
+    const tabelle = tx.objectStore('plan');
+    const eintrag = await warten(tabelle.get(id));
+    if (eintrag) tabelle.put({ ...eintrag, bewertung });
+  });
+}
+
+// Noch nicht bewertete Abende der letzten 7 Tage (ohne heute), der jüngste zuerst
+export async function offeneBewertungen(von, bis) {
+  const eintraege = await planImZeitraum(von, bis);
+  return eintraege
+    .filter((eintrag) => eintrag.bewertung === undefined)
+    .sort((a, b) => b.datum.localeCompare(a.datum));
+}
+
+// Durchschnitt pro Rezept: Map von Rezept-ID → { schnitt: 4.5, anzahl: 2 }
+export async function bewertungenProRezept() {
+  const summen = new Map();
+  for (const eintrag of await alle('plan')) {
+    if (!eintrag.bewertung) continue;
+    const bisher = summen.get(eintrag.rezeptId) ?? { summe: 0, anzahl: 0 };
+    summen.set(eintrag.rezeptId, { summe: bisher.summe + eintrag.bewertung, anzahl: bisher.anzahl + 1 });
+  }
+  return new Map([...summen].map(([id, { summe, anzahl }]) => [id, { schnitt: summe / anzahl, anzahl }]));
+}
+
 // ---------- Zum Ausprobieren ----------
 
 // Löscht alle Rezepte und den Kalender und stellt die Startkategorien wieder her.
