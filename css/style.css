@@ -568,12 +568,17 @@ select.eingabe {
 }
 
 .streifen-tag.heute {
+  color: var(--akzent);
+  box-shadow: inset 0 0 0 2.5px var(--akzent), 0 2px 0 var(--schatten);
+}
+
+.streifen-tag.gewaehlt {
   background: var(--akzent);
   color: var(--akzent-text);
   box-shadow: 0 3px 0 var(--akzent-tief);
 }
 
-.streifen-tag.heute.geplant .streifen-punkt {
+.streifen-tag.gewaehlt.geplant .streifen-punkt {
   background: #FFFFFF;
 }
 
@@ -671,7 +676,7 @@ select.eingabe {
   color: var(--text);
   text-align: left;
   box-shadow: 0 3px 0 var(--schatten);
-  transition: transform 0.12s;
+  transition: transform 0.12s, background 0.25s, color 0.25s, padding 0.25s;
 }
 
 .plan-karte:active {
@@ -728,8 +733,8 @@ select.eingabe {
   color: var(--gold);
 }
 
-/* Heute: die große Korallen-Karte */
-.plan-karte.heute {
+/* Der ausgewählte Tag (anfangs heute): die große Korallen-Karte */
+.tag.gewaehlt .plan-karte {
   padding: 14px;
   border-radius: var(--radius-gross);
   background: var(--koralle);
@@ -737,32 +742,37 @@ select.eingabe {
   box-shadow: 0 4px 0 var(--koralle-tief);
 }
 
-.plan-karte.heute .plan-bild {
+.tag.gewaehlt .plan-bild .symbol {
+  width: 48px;
+  height: 48px;
+}
+
+.tag.gewaehlt .plan-bild {
   width: 96px;
   height: 96px;
   border-radius: 20px;
 }
 
-.plan-karte.heute .plan-tag {
+.tag.gewaehlt .plan-karte .plan-tag {
   color: #FFFFFF;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   opacity: 0.95;
 }
 
-.plan-karte.heute .plan-titel {
+.tag.gewaehlt .plan-titel {
   font-family: var(--schrift-titel);
   font-size: 22px;
   font-weight: 600;
   line-height: 1.15;
 }
 
-.plan-karte.heute .plan-info {
+.tag.gewaehlt .plan-info {
   color: #FFFFFF;
   opacity: 0.9;
 }
 
-.plan-karte.heute .plan-stern {
+.tag.gewaehlt .plan-stern {
   color: #FFFFFF;
 }
 
@@ -777,7 +787,7 @@ select.eingabe {
   border-radius: 22px;
 }
 
-.leerer-tag.heute {
+.tag.gewaehlt .leerer-tag {
   border-color: var(--koralle);
 }
 

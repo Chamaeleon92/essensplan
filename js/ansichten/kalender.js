@@ -23,6 +23,7 @@ const WOCHENTAGE = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 const zustand = {
   modus: gespeicherterModus(), // 'woche' oder 'monat'
   datum: new Date(),           // irgendein Tag in der angezeigten Woche bzw. dem Monat
+  gewaehlt: null,              // im Wochenstreifen ausgewählter Tag ("2026-10-20"), anfangs heute
 };
 const auswahlFilter = neuerFilter();
 
@@ -160,11 +161,17 @@ function wocheHtml(tage, proTag, kategorienNachId) {
   const heute = new Date();
   const geplanteTage = tage.filter((tag) => proTag.has(schluessel(tag))).length;
 
+  // Ausgewählt ist der zuletzt angetippte Tag – liegt er nicht in dieser Woche, dann heute (falls drin)
+  if (!tage.some((tag) => schluessel(tag) === zustand.gewaehlt)) {
+    zustand.gewaehlt = tage.some((tag) => gleicherTag(tag, heute)) ? schluessel(heute) : null;
+  }
+
   return `
     <div class="wochenstreifen">
       ${tage.map((tag) => {
         const klassen = ['streifen-tag'];
         if (gleicherTag(tag, heute)) klassen.push('heute');
+        if (schluessel(tag) === zustand.gewaehlt) klassen.push('gewaehlt');
         if (proTag.has(schluessel(tag))) klassen.push('geplant');
         return `
           <button type="button" class="${klassen.join(' ')}" data-tag="${schluessel(tag)}" data-springen
@@ -183,8 +190,11 @@ function wocheHtml(tage, proTag, kategorienNachId) {
       ${tage.map((tag) => {
         const geplant = proTag.get(schluessel(tag)) ?? [];
         const istHeute = gleicherTag(tag, heute);
+        const klassen = ['tag'];
+        if (istHeute) klassen.push('heute');
+        if (schluessel(tag) === zustand.gewaehlt) klassen.push('gewaehlt');
         return `
-          <section class="tag ${istHeute ? 'heute' : ''}" data-tag="${schluessel(tag)}" id="tag-${schluessel(tag)}"
+          <section class="${klassen.join(' ')}" data-tag="${schluessel(tag)}" id="tag-${schluessel(tag)}"
                    aria-label="${datumLang(tag)}">
             ${geplant.map(({ eintrag, rezept }) => planKarte(tag, eintrag, rezept, kategorienNachId, istHeute)).join('')}
             ${geplant.length ? '' : leererTag(tag, istHeute)}
@@ -231,9 +241,9 @@ function planKarte(tag, eintrag, rezept, kategorienNachId, istHeute) {
 
   return `
     <div class="plan-eintrag" data-eintrag="${eintrag.id}">
-      <button type="button" class="plan-karte ${istHeute ? 'heute' : ''}" data-id="${rezept.id}">
+      <button type="button" class="plan-karte" data-id="${rezept.id}">
         <span class="plan-bild ${farbklasse(rezept.id)}">
-          ${rezept.bild ? `<img src="${rezept.bild}" alt="">` : symbol.teller({ groesse: istHeute ? 48 : 28 })}
+          ${rezept.bild ? `<img src="${rezept.bild}" alt="">` : symbol.teller({ groesse: 28 })}
         </span>
         <span class="plan-text">
           <span class="plan-tag">${tagText}</span>
@@ -249,7 +259,7 @@ function planKarte(tag, eintrag, rezept, kategorienNachId, istHeute) {
 function leererTag(tag, istHeute) {
   const tagText = istHeute ? `Heute · ${wochentagKurz(tag)} ${datumKurz(tag)}` : `${wochentagKurz(tag)} ${datumKurz(tag)}`;
   return `
-    <div class="leerer-tag ${istHeute ? 'heute' : ''}">
+    <div class="leerer-tag">
       <span class="leer-text">
         <span class="plan-tag">${tagText}</span>
         <span class="leer-hinweis">Noch nichts geplant</span>
@@ -327,8 +337,7 @@ async function geklickt(ereignis) {
     fortschrittVorher = null;
     await zeichnen();
   } else if (ziel.hasAttribute('data-springen')) {
-    container.querySelector(`#tag-${ziel.dataset.tag}`)
-      ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    tagWaehlen(ziel.dataset.tag);
   } else if (ziel.dataset.planen) {
     await auswahlOeffnen(ziel.dataset.planen);
   } else if (ziel.dataset.wuerfeln) {
@@ -343,6 +352,16 @@ async function geklickt(ereignis) {
     // Klick auf ein geplantes Gericht öffnet das Rezept
     location.hash = `#/rezept/${ziel.dataset.id}`;
   }
+}
+
+// Markiert einen Tag (Streifen violett, Karte orange) und scrollt zu ihm – ohne neu zu zeichnen
+function tagWaehlen(tagSchluessel) {
+  zustand.gewaehlt = tagSchluessel;
+  for (const element of container.querySelectorAll('.streifen-tag, .tag')) {
+    element.classList.toggle('gewaehlt', element.dataset.tag === tagSchluessel);
+  }
+  container.querySelector(`#tag-${tagSchluessel}`)
+    ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 // Ein Gericht wurde per Drag & Drop auf einen Tag oder in den Papierkorb gezogen
