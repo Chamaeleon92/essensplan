@@ -29,7 +29,8 @@ const auswahlFilter = neuerFilter();
 let container;
 let alleRezepteListe = [];    // alle Rezepte (zum Würfeln)
 let geplanteRezepte = [];     // alle Rezepte der angezeigten Woche (für Einkaufsliste und Würfel)
-let einkaufText = '';         // fertiger Text der Einkaufsliste zum Kopieren
+// Einkaufsliste der angezeigten Woche: alle Zutaten, die markierten (= kaufen wir) und Titel
+const einkauf = { liste: [], ausgewaehlt: new Set(), titel: '', woche: '' };
 let neuerEintragId = null;    // dieser Eintrag "ploppt" beim nächsten Zeichnen herein
 let fortschrittVorher = null; // { woche, anzahl } – um eine gerade voll gewordene Woche zu feiern
 
@@ -332,6 +333,10 @@ async function geklickt(ereignis) {
     await auswahlOeffnen(ziel.dataset.planen);
   } else if (ziel.dataset.wuerfeln) {
     await wuerfeln(ziel.dataset.wuerfeln, ziel);
+  } else if (ziel.dataset.zutat !== undefined) {
+    zutatUmschalten(ziel);
+  } else if (ziel.hasAttribute('data-alle')) {
+    alleUmschalten();
   } else if (ziel.hasAttribute('data-kopieren')) {
     await kopieren(ziel);
   } else if (ziel.dataset.id) {
@@ -412,47 +417,117 @@ function einkaufslisteOeffnen() {
   const dialog = container.querySelector('dialog.einkauf');
   const inhalt = dialog.querySelector('.blatt-inhalt');
   const tage = wochenTage(zustand.datum);
-  const titel = `Einkaufsliste ${datumKurz(tage[0])}–${datumKurz(tage[6])}`;
+  einkauf.titel = `Einkaufsliste ${datumKurz(tage[0])}–${datumKurz(tage[6])}`;
+  einkauf.woche = schluessel(tage[0]);
 
   if (geplanteRezepte.length === 0) {
-    einkaufText = '';
+    einkauf.liste = [];
     inhalt.innerHTML = '<p class="hinweis">Für diese Woche ist noch nichts geplant.</p>';
-    blattOeffnen(dialog, titel);
+    blattOeffnen(dialog, einkauf.titel);
     return;
   }
 
-  const liste = einkaufslisteBerechnen(geplanteRezepte);
-  einkaufText = einkaufslisteText(liste, titel);
+  einkauf.liste = einkaufslisteBerechnen(geplanteRezepte);
+  // Gemerkte Auswahl dieser Woche – aber nur Zutaten, die es noch gibt
+  const vorhanden = new Set(einkauf.liste.map(zutatSchluessel));
+  einkauf.ausgewaehlt = new Set(auswahlLesen(einkauf.woche).filter((name) => vorhanden.has(name)));
   const anzahl = geplanteRezepte.length;
 
   inhalt.innerHTML = `
-    <p class="anzahl">${liste.length} Zutaten aus ${anzahl} ${anzahl === 1 ? 'Gericht' : 'Gerichten'}</p>
-    ${liste.length ? `
+    <p class="anzahl">${einkauf.liste.length} Zutaten aus ${anzahl} ${anzahl === 1 ? 'Gericht' : 'Gerichten'}</p>
+    ${einkauf.liste.length ? `
+      <div class="einkauf-leiste">
+        <span class="einkauf-hinweis">Tippt an, was ihr noch kaufen müsst.</span>
+        <button type="button" class="knopf knopf-klein" data-alle></button>
+      </div>
       <ul class="einkauf-liste">
-        ${liste.map(({ name, menge }) => `
+        ${einkauf.liste.map((zutat, i) => `
           <li>
-            <span class="zutat-mengenangabe">${menge ? sicher(menge) : '<span class="leise">nach Geschmack</span>'}</span>
-            <span>${sicher(name)}</span>
+            <button type="button" class="einkauf-eintrag" role="checkbox" data-zutat="${i}"
+                    aria-checked="${einkauf.ausgewaehlt.has(zutatSchluessel(zutat))}">
+              <span class="einkauf-haken">${symbol.haken({ groesse: 16 })}</span>
+              <span class="zutat-mengenangabe">${zutat.menge ? sicher(zutat.menge) : 'nach Geschmack'}</span>
+              <span class="einkauf-name">${sicher(zutat.name)}</span>
+            </button>
           </li>
         `).join('')}
       </ul>` : '<p class="hinweis">Die geplanten Rezepte haben keine Zutaten.</p>'}
     <div class="blatt-aktionen">
-      <button type="button" class="knopf knopf-haupt" data-kopieren ${liste.length ? '' : 'disabled'}>
-        ${symbol.kopieren({ groesse: 20 })} <span>In die Zwischenablage kopieren</span>
-      </button>
+      <button type="button" class="knopf knopf-haupt" data-kopieren></button>
     </div>
   `;
-  blattOeffnen(dialog, titel);
+  auswahlAnzeigen();
+  blattOeffnen(dialog, einkauf.titel);
 }
 
-// Kopiert die Einkaufsliste, damit man sie z. B. in Notizen einfügen kann
+function zutatSchluessel(zutat) {
+  return zutat.name.toLocaleLowerCase('de');
+}
+
+function zutatUmschalten(eintrag) {
+  const name = zutatSchluessel(einkauf.liste[Number(eintrag.dataset.zutat)]);
+  if (einkauf.ausgewaehlt.has(name)) {
+    einkauf.ausgewaehlt.delete(name);
+  } else {
+    einkauf.ausgewaehlt.add(name);
+  }
+  eintrag.setAttribute('aria-checked', String(einkauf.ausgewaehlt.has(name)));
+  auswahlMerken();
+  auswahlAnzeigen();
+}
+
+// "Alle" markiert alles – sind schon alle markiert, wird der Knopf zu "Keine"
+function alleUmschalten() {
+  const alleMarkiert = einkauf.ausgewaehlt.size === einkauf.liste.length;
+  einkauf.ausgewaehlt = alleMarkiert ? new Set() : new Set(einkauf.liste.map(zutatSchluessel));
+  for (const eintrag of container.querySelectorAll('.einkauf-eintrag')) {
+    eintrag.setAttribute('aria-checked', String(!alleMarkiert));
+  }
+  auswahlMerken();
+  auswahlAnzeigen();
+}
+
+// Aktualisiert den Alle/Keine-Knopf und den Kopier-Knopf passend zur Auswahl
+function auswahlAnzeigen() {
+  const anzahl = einkauf.ausgewaehlt.size;
+  const alleKnopf = container.querySelector('[data-alle]');
+  if (alleKnopf) alleKnopf.textContent = anzahl === einkauf.liste.length ? 'Keine' : 'Alle';
+
+  const kopierKnopf = container.querySelector('[data-kopieren]');
+  kopierKnopf.disabled = anzahl === 0;
+  kopierKnopf.classList.remove('kopiert');
+  kopierKnopf.innerHTML = anzahl === 0
+    ? '<span>Noch nichts ausgewählt</span>'
+    : `${symbol.kopieren({ groesse: 20 })} <span>${anzahl === 1 ? '1 Zutat' : `${anzahl} Zutaten`} kopieren</span>`;
+}
+
+// Die Auswahl wird pro Woche im Browser gemerkt (nur eine Bequemlichkeit)
+function auswahlLesen(woche) {
+  try {
+    return JSON.parse(localStorage.getItem(`einkauf-${woche}`)) ?? [];
+  } catch {
+    return [];
+  }
+}
+
+function auswahlMerken() {
+  try {
+    localStorage.setItem(`einkauf-${einkauf.woche}`, JSON.stringify([...einkauf.ausgewaehlt]));
+  } catch {
+    // Kein Problem – dann ist die Auswahl beim nächsten Öffnen eben leer
+  }
+}
+
+// Kopiert die markierten Zutaten, damit man sie z. B. in Notizen einfügen kann
 async function kopieren(knopf) {
+  const markiert = einkauf.liste.filter((zutat) => einkauf.ausgewaehlt.has(zutatSchluessel(zutat)));
+  const text = einkaufslisteText(markiert, einkauf.titel);
   let geklappt = false;
   try {
-    await navigator.clipboard.writeText(einkaufText);
+    await navigator.clipboard.writeText(text);
     geklappt = true;
   } catch {
-    geklappt = altmodischKopieren(einkaufText);
+    geklappt = altmodischKopieren(text);
   }
   knopf.innerHTML = geklappt
     ? `${symbol.haken({ groesse: 20 })} <span>Kopiert! Jetzt in Notizen einfügen</span>`
