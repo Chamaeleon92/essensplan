@@ -34,12 +34,12 @@ Ein Doppelklick auf `index.html` reicht nicht: Die App ist in mehrere JavaScript
 
 ## Beispielrezepte
 
-Zum Ausprobieren gibt es 8 Beispielrezepte. Sie werden angelegt und in diese und nächste Woche eingeplant:
+Zum Ausprobieren gibt es 20 Beispielrezepte (einige ohne Foto). Sie werden angelegt und in die letzte, diese und nächste Woche eingeplant – der Sonntag dieser Woche bleibt frei zum Würfeln:
 
-- in der leeren Rezeptliste auf **Beispielrezepte laden** tippen, oder
+- unter **Kategorien → Zum Ausprobieren → Beispielrezepte laden** (oder in der leeren Rezeptliste), oder
 - die Adresse um `#/beispieldaten` ergänzen, z. B. `http://127.0.0.1:5500/index.html#/beispieldaten`
 
-Rezepte, die es schon gibt, werden nicht doppelt angelegt.
+Rezepte, die es schon gibt, werden nicht doppelt angelegt. Mit **Alles zurücksetzen** (ebenfalls unter Kategorien) fängt man wieder bei null an.
 
 ## Als App installieren
 

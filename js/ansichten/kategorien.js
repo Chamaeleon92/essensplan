@@ -1,6 +1,6 @@
 // Kategorien verwalten: hinzufügen, umbenennen, löschen.
 
-import { alleKategorien, speichern, kategorieLoeschen, neueId } from '../db.js';
+import { alleKategorien, speichern, kategorieLoeschen, neueId, allesZuruecksetzen } from '../db.js';
 import { sicher, gleicherName } from '../hilfen.js';
 import { kopfSetzen } from '../kopf.js';
 import { symbol } from '../symbole.js';
@@ -31,10 +31,25 @@ function zeichnen() {
     <ul class="liste">
       ${kategorien.map(zeile).join('')}
     </ul>
+
+    <section class="ausprobieren">
+      <h2>Zum Ausprobieren</h2>
+      <p class="leise">
+        Legt 20 Beispielrezepte an und plant sie in die letzte, diese und nächste Woche ein.
+        Eigene Rezepte bleiben erhalten.
+      </p>
+      <div class="ausprobieren-knoepfe">
+        <a class="knopf knopf-haupt" href="#/beispieldaten">Beispielrezepte laden</a>
+        <button type="button" class="knopf knopf-gefahr" data-zuruecksetzen>
+          ${symbol.muell({ groesse: 20 })} Alles zurücksetzen
+        </button>
+      </div>
+    </section>
   `;
 
   container.querySelector('#neu-formular').addEventListener('submit', hinzufuegen);
   container.querySelector('.liste').addEventListener('click', listeGeklickt);
+  container.querySelector('[data-zuruecksetzen]').addEventListener('click', zuruecksetzen);
 
   const umbenennenFormular = container.querySelector('#umbenennen-formular');
   if (umbenennenFormular) {
@@ -134,5 +149,16 @@ async function listeGeklickt(ereignis) {
       await kategorieLoeschen(kategorie.id);
       await neuLaden();
     }
+  }
+}
+
+async function zuruecksetzen() {
+  const sicherGefragt = confirm(
+    'Wirklich alles zurücksetzen?\n\nAlle Rezepte und der komplette Kalender werden gelöscht, '
+    + 'die Kategorien auf die Startliste zurückgesetzt. Das lässt sich nicht rückgängig machen.'
+  );
+  if (sicherGefragt) {
+    await allesZuruecksetzen();
+    await neuLaden();
   }
 }
